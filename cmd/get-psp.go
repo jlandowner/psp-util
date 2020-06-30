@@ -55,16 +55,16 @@ var getPspCmd = &cobra.Command{
 
 		for _, psp := range psps {
 			if len(psp.ClusterRoles) == 0 {
-				printers.PrintLine(w, []string{psp.API.Name})
+				printers.PrintLine(w, []string{psp.Name})
 				continue
 			}
 			for _, cr := range psp.ClusterRoles {
 				if len(cr.ClusterRoleBindings) == 0 {
-					printers.PrintLine(w, []string{psp.API.Name, cr.API.Name})
+					printers.PrintLine(w, []string{psp.Name, cr.Name})
 					continue
 				}
 				for _, crb := range cr.ClusterRoleBindings {
-					printers.PrintLine(w, []string{psp.API.Name, cr.API.Name, crb.Name})
+					printers.PrintLine(w, []string{psp.Name, cr.Name, crb.Name})
 				}
 			}
 		}

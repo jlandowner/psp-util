@@ -14,12 +14,12 @@ import (
 
 type PodSecurityPolicy struct {
 	ClusterRoles []ClusterRole
-	API          policyv1.PodSecurityPolicy
+	policyv1.PodSecurityPolicy
 }
 
 type ClusterRole struct {
 	ClusterRoleBindings []rbacv1.ClusterRoleBinding
-	API                 rbacv1.ClusterRole
+	rbacv1.ClusterRole
 }
 
 func GetPSP(ctx context.Context, k8sclient *kubernetes.Clientset) ([]PodSecurityPolicy, error) {
@@ -29,7 +29,7 @@ func GetPSP(ctx context.Context, k8sclient *kubernetes.Clientset) ([]PodSecurity
 	}
 	psps := make([]PodSecurityPolicy, len(apiPspList.Items))
 	for i, p := range apiPspList.Items {
-		psps[i].API = p
+		psps[i].PodSecurityPolicy = p
 	}
 
 	apiCrList, err := clusterrole.ListUsePSPRole(ctx, k8sclient)
@@ -46,15 +46,15 @@ func GetPSP(ctx context.Context, k8sclient *kubernetes.Clientset) ([]PodSecurity
 		for _, apicr := range apiCrList.Items {
 			pspNames := clusterrole.ExtractPSPNamesFromClusterRole(apicr)
 			for _, pspName := range pspNames {
-				if psps[i].API.Name == pspName {
-					psps[i].ClusterRoles = append(psps[i].ClusterRoles, ClusterRole{API: apicr})
+				if psps[i].Name == pspName {
+					psps[i].ClusterRoles = append(psps[i].ClusterRoles, ClusterRole{ClusterRole: apicr})
 				}
 			}
 		}
 
 		for j, cr := range psps[i].ClusterRoles {
 			for _, apicrb := range apiCrbList.Items {
-				if apicrb.RoleRef.APIGroup == "rbac.authorization.k8s.io" && apicrb.RoleRef.Kind == "ClusterRole" && apicrb.RoleRef.Name == cr.API.Name {
+				if apicrb.RoleRef.APIGroup == "rbac.authorization.k8s.io" && apicrb.RoleRef.Kind == "ClusterRole" && apicrb.RoleRef.Name == cr.Name {
 					psps[i].ClusterRoles[j].ClusterRoleBindings = append(psps[i].ClusterRoles[j].ClusterRoleBindings, apicrb)
 				}
 			}
