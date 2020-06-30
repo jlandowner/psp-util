@@ -17,14 +17,13 @@ package cmd
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
-
 	"github.com/jlandowner/psp-util/pkg/client"
-	getpsp "github.com/jlandowner/psp-util/pkg/cmd/get-psp"
 	"github.com/jlandowner/psp-util/pkg/printers"
+	"github.com/jlandowner/psp-util/pkg/structured"
+	"github.com/spf13/cobra"
 )
 
 func init() {
@@ -35,23 +34,42 @@ var getPspCmd = &cobra.Command{
 	Use:   "psp",
 	Short: "Get Pod Security Policies and RBAC associated with it.",
 	Run: func(cmd *cobra.Command, args []string) {
-
 		ctx := context.Background()
 		k8sclient, err := client.NewClient(&kubeconfigPath)
+
 		if err != nil {
-			log.Fatalf("Failed to load kubeconfig %v (%v)", kubeconfigPath, err.Error())
+			fmt.Fprintf(os.Stderr, "Failed to load kubeconfig %v: %v\n", kubeconfigPath, err.Error())
+			return
 		}
 
-		psps, err := getpsp.GetPSP(ctx, k8sclient)
-		if err != nil {
-			log.Fatalln(err)
+		var pspName string
+		if len(args) > 0 {
+			pspName = args[0]
+		}
+
+		var psps []structured.StructuredPodSecurityPolicy
+		if pspName != "" {
+			p, err := structured.GetStructuredPSP(ctx, k8sclient, pspName)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err.Error())
+				return
+			}
+
+			psps = make([]structured.StructuredPodSecurityPolicy, 1)
+			psps[0] = *p
+
+		} else {
+			psps, err = structured.GetStructuredPSPs(ctx, k8sclient)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err.Error())
+				return
+			}
 		}
 
 		w := printers.GetNewTabWriter(os.Stdout)
 		defer w.Flush()
 
-		columnNames := []string{"PSP-NAME", "CLUSTER-ROLE", "CLUSTER-ROLE-BINDING"}
-		printers.PrintLine(w, columnNames)
+		printers.PrintLine(w, []string{"PSP-NAME", "CLUSTER-ROLE", "CLUSTER-ROLE-BINDING"})
 
 		for _, psp := range psps {
 			if len(psp.ClusterRoles) == 0 {

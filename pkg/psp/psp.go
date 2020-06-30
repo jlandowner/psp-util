@@ -26,3 +26,7 @@ import (
 func List(ctx context.Context, k8sclient *kubernetes.Clientset) (*policyv1.PodSecurityPolicyList, error) {
 	return k8sclient.PolicyV1beta1().PodSecurityPolicies().List(ctx, metav1.ListOptions{})
 }
+
+func Get(ctx context.Context, k8sclient *kubernetes.Clientset, name string) (*policyv1.PodSecurityPolicy, error) {
+	return k8sclient.PolicyV1beta1().PodSecurityPolicies().Get(ctx, name, metav1.GetOptions{})
+}

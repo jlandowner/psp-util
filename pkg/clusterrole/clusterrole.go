@@ -23,6 +23,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+func ListBindings(ctx context.Context, k8sclient *kubernetes.Clientset) (*rbacv1.ClusterRoleBindingList, error) {
+	return k8sclient.RbacV1().ClusterRoleBindings().List(ctx, metav1.ListOptions{})
+}
+
 func ListUsePSPRole(ctx context.Context, k8sclient *kubernetes.Clientset) (*rbacv1.ClusterRoleList, error) {
 	clusterRoleList, err := k8sclient.RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
 	if err != nil {
@@ -44,23 +48,38 @@ func ListUsePSPRole(ctx context.Context, k8sclient *kubernetes.Clientset) (*rbac
 func ExtractPSPNamesFromClusterRole(cr rbacv1.ClusterRole) []string {
 	pspNames := make([]string, 0)
 	for _, rule := range cr.Rules {
-		for i, apiGroups := range rule.APIGroups {
-			if apiGroups == "policy" {
-				for _, resource := range rule.Resources {
-					if resource == "podsecuritypolicies" {
-						for _, verb := range rule.Verbs {
-							if verb == "use" {
-								pspNames = append(pspNames, rule.ResourceNames[i])
-							}
-						}
-					}
-				}
+		if hasApiGroupsPolicy(rule) && hasResourcePSP(rule) && hasVerbUse(rule) {
+			for _, resourceName := range rule.ResourceNames {
+				pspNames = append(pspNames, resourceName)
 			}
 		}
 	}
 	return pspNames
 }
 
-func ListBindings(ctx context.Context, k8sclient *kubernetes.Clientset) (*rbacv1.ClusterRoleBindingList, error) {
-	return k8sclient.RbacV1().ClusterRoleBindings().List(ctx, metav1.ListOptions{})
+func hasApiGroupsPolicy(rule rbacv1.PolicyRule) bool {
+	for _, apiGroups := range rule.APIGroups {
+		if apiGroups == "policy" {
+			return true
+		}
+	}
+	return false
+}
+
+func hasResourcePSP(rule rbacv1.PolicyRule) bool {
+	for _, resource := range rule.Resources {
+		if resource == "podsecuritypolicies" {
+			return true
+		}
+	}
+	return false
+}
+
+func hasVerbUse(rule rbacv1.PolicyRule) bool {
+	for _, verb := range rule.Verbs {
+		if verb == "use" {
+			return true
+		}
+	}
+	return false
 }
