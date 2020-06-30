@@ -36,7 +36,6 @@ var getPspCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
 		k8sclient, err := client.NewClient(&kubeconfigPath)
-
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to load kubeconfig %v: %v\n", kubeconfigPath, err.Error())
 			return
@@ -86,6 +85,5 @@ var getPspCmd = &cobra.Command{
 				}
 			}
 		}
-
 	},
 }
