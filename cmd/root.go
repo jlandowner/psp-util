@@ -22,12 +22,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var rootCmd = &cobra.Command{
-	Use:   "psp-util",
-	Short: "psp-util is a command utility of Pod Security Policy",
-	Long: `Pod Security Policy Utilities is a Kubectl extention to manage Pod Security Policy(PSP) and RBAC Resources.
+var (
+	kubeconfigPath string
+
+	rootCmd = &cobra.Command{
+		Use:   "psp-util",
+		Short: "psp-util is a command utility of Pod Security Policy",
+		Long: `Pod Security Policy Utilities is a Kubectl extention to manage Pod Security Policy(PSP) and RBAC Resources.
 
 Complete documentation is available at http://github.com/jlandowner/psp-util`,
+	}
+)
+
+func init() {
+	rootCmd.PersistentFlags().StringVar(&kubeconfigPath, "kubeconfig", "", "kube config file (default is $HOME/.kube/config)")
 }
 
 func Execute() {

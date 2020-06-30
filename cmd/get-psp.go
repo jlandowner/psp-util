@@ -16,18 +16,58 @@ limitations under the License.
 package cmd
 
 import (
-  "fmt"
-  "github.com/spf13/cobra"
+	"context"
+	"log"
+	"os"
+
+	"github.com/spf13/cobra"
+
+	"github.com/jlandowner/psp-util/pkg/client"
+	getpsp "github.com/jlandowner/psp-util/pkg/cmd/get-psp"
+	"github.com/jlandowner/psp-util/pkg/printers"
 )
 
 func init() {
-  getCmd.AddCommand(getPspCmd)
+	getCmd.AddCommand(getPspCmd)
 }
 
 var getPspCmd = &cobra.Command{
-  Use:   "psp",
-  Short: "Get Pod Security Policies and RBAC associated with it.",
-  Run: func(cmd *cobra.Command, args []string) {
-    fmt.Println("get psp")
-  },
+	Use:   "psp",
+	Short: "Get Pod Security Policies and RBAC associated with it.",
+	Run: func(cmd *cobra.Command, args []string) {
+
+		ctx := context.Background()
+		k8sclient, err := client.NewClient(&kubeconfigPath)
+		if err != nil {
+			log.Fatalf("Failed to load kubeconfig %v (%v)", kubeconfigPath, err.Error())
+		}
+
+		psps, err := getpsp.GetPSP(ctx, k8sclient)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		w := printers.GetNewTabWriter(os.Stdout)
+		defer w.Flush()
+
+		columnNames := []string{"PSP-NAME", "CLUSTER-ROLE", "CLUSTER-ROLE-BINDING"}
+		printers.PrintLine(w, columnNames)
+
+		for _, psp := range psps {
+			if len(psp.ClusterRoles) == 0 {
+				printers.PrintLine(w, []string{psp.API.Name})
+				continue
+			}
+			for _, cr := range psp.ClusterRoles {
+				if len(cr.ClusterRoleBindings) == 0 {
+					printers.PrintLine(w, []string{psp.API.Name, cr.API.Name})
+					continue
+				}
+				for _, crb := range cr.ClusterRoleBindings {
+					printers.PrintLine(w, []string{psp.API.Name, cr.API.Name, crb.Name})
+				}
+			}
+		}
+
+	},
 }
