@@ -17,17 +17,18 @@ package cmd
 
 import (
 	"fmt"
-  "github.com/spf13/cobra"
+
+	"github.com/spf13/cobra"
 )
 
 func init() {
-  rootCmd.AddCommand(detachCmd)
+	rootCmd.AddCommand(detachCmd)
 }
 
 var detachCmd = &cobra.Command{
-  Use:   "detach",
-  Short: "Detach PSP from RBAC",
-  Run: func(cmd *cobra.Command, args []string) {
-    fmt.Println("detach psp")
-  },
+	Use:   "detach",
+	Short: "Detach PSP from RBAC",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("detach psp")
+	},
 }

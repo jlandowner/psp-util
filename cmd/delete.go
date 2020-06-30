@@ -17,17 +17,18 @@ package cmd
 
 import (
 	"fmt"
-  "github.com/spf13/cobra"
+
+	"github.com/spf13/cobra"
 )
 
 func init() {
-  rootCmd.AddCommand(deleteCmd)
+	rootCmd.AddCommand(deleteCmd)
 }
 
 var deleteCmd = &cobra.Command{
-  Use:   "delete",
-  Short: "Delete PSP and its ClusterRole",
-  Run: func(cmd *cobra.Command, args []string) {
-    fmt.Println("delete psp")
-  },
+	Use:   "delete",
+	Short: "Delete PSP and its ClusterRole",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("delete psp")
+	},
 }

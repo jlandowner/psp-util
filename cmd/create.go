@@ -17,17 +17,18 @@ package cmd
 
 import (
 	"fmt"
-  "github.com/spf13/cobra"
+
+	"github.com/spf13/cobra"
 )
 
 func init() {
-  rootCmd.AddCommand(createCmd)
+	rootCmd.AddCommand(createCmd)
 }
 
 var createCmd = &cobra.Command{
-  Use:   "create",
-  Short: "Create PSP and its ClusterRole",
-  Run: func(cmd *cobra.Command, args []string) {
-    fmt.Println("create psp")
-  },
+	Use:   "create",
+	Short: "Create PSP and its ClusterRole",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("create psp")
+	},
 }

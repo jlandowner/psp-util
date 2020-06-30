@@ -17,17 +17,18 @@ package cmd
 
 import (
 	"fmt"
-  "github.com/spf13/cobra"
+
+	"github.com/spf13/cobra"
 )
 
 func init() {
-  rootCmd.AddCommand(attachCmd)
+	rootCmd.AddCommand(attachCmd)
 }
 
 var attachCmd = &cobra.Command{
-  Use:   "attach",
-  Short: "Attach PSP to RBAC",
-  Run: func(cmd *cobra.Command, args []string) {
-    fmt.Println("attach")
-  },
+	Use:   "attach",
+	Short: "Attach PSP to RBAC",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("attach")
+	},
 }
