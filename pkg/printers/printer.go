@@ -36,7 +36,15 @@ func GetNewTabWriter(output io.Writer) *tabwriter.Writer {
 	return tabwriter.NewWriter(output, tabwriterMinWidth, tabwriterWidth, tabwriterPadding, tabwriterPadChar, tabwriterFlags)
 }
 
+// PrintLine write given string list separated by tab
 func PrintLine(out io.Writer, columnNames []string) error {
 	_, err := fmt.Fprintf(out, "%s\n", strings.Join(columnNames, "\t"))
 	return err
 }
+
+var (
+	RedString   = "\x1b[31m%s\x1b[0m"
+	CianString  = "\x1b[36m%s\x1b[0m"
+	GreenString = "\x1b[32m%s\x1b[0m"
+	BlueString  = "\x1b[34m%s\x1b[0m"
+)
