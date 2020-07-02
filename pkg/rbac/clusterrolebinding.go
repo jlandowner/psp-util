@@ -77,7 +77,7 @@ func DetachSubjectToClusterRoleBinding(clusterRoleBinding *rbacv1.ClusterRoleBin
 			pos = i
 		}
 	}
-	if pos > 0 {
+	if pos >= 0 {
 		hasGivenSubject = true
 		clusterRoleBinding.Subjects = append(clusterRoleBinding.Subjects[:pos], clusterRoleBinding.Subjects[pos+1:]...)
 	}
