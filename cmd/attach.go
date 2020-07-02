@@ -30,9 +30,14 @@ import (
 
 func init() {
 	rootCmd.AddCommand(attachCmd)
-	attachCmd.Flags().BoolVarP(&a.useGroup, "group", "g", false, "use Kind Group as Subject's Kind")
-	attachCmd.Flags().BoolVarP(&a.useUser, "user", "u", false, "use Kind User as Subject's Kind")
-	attachCmd.Flags().BoolVarP(&a.useSA, "sa", "s", false, "use Kind ServiceAccount as Subject's Kind")
+	attachCmd.Flags().StringVarP(&a.group, "group", "g", "", "set Subject's Name and use Kind Group")
+	attachCmd.Flags().StringVarP(&a.user, "user", "u", "", "set Subject's Name and use Kind User")
+	attachCmd.Flags().StringVarP(&a.sa, "sa", "s", "", "set Subject's Name and use Kind ServiceAccount")
+
+	attachCmd.Flags().StringVar(&a.SubjectKind, "kind", "", "set Subject's Kind")
+	attachCmd.Flags().StringVar(&a.SubjectName, "name", "", "set Subject's Name")
+	attachCmd.Flags().StringVar(&a.SubjectAPIGroup, "api-group", "", "set Subject's APIGroup")
+
 	attachCmd.Flags().StringVarP(&a.SubjectNamespace, "namespace", "n", "", "set Subject's Namespace (only used when kind is ServiceAccount)")
 }
 
@@ -41,9 +46,9 @@ var (
 	a               = &AttachDetachOptions{}
 
 	attachCmd = &cobra.Command{
-		Use:               "attach PSP-NAME SUBJECT-NAME [ --group | --user | --sa ]",
+		Use:               "attach PSP-NAME [ --group | --user | --sa ] SUBJECT-NAME",
 		Short:             "Attach PSP to RBAC Subject",
-		PersistentPreRunE: a.Complete,
+		PersistentPreRunE: a.ValidateAndComplete,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
@@ -112,57 +117,68 @@ type AttachDetachOptions struct {
 	SubjectKind      string
 	SubjectName      string
 	SubjectNamespace string
+	SubjectAPIGroup  string
 
-	useGroup bool
-	useUser  bool
-	useSA    bool
+	group string
+	user  string
+	sa    string
 }
 
-func (a AttachDetachOptions) Complete(cmd *cobra.Command, args []string) error {
-	if len(args) != 2 {
-		return fmt.Errorf("Args is invalid. Required: `PSP-NAME SUBJECT-NAME`")
+func (o *AttachDetachOptions) ValidateAndComplete(cmd *cobra.Command, args []string) error {
+	if len(args) != 1 {
+		return fmt.Errorf("Args is invalid. Required: `PSP-NAME`")
 	}
-	a.PSPName = args[0]
-	a.SubjectName = args[1]
+	o.PSPName = args[0]
 
-	if !a.useGroup && !a.useUser && !a.useSA {
-		return fmt.Errorf("You must specify one of Subject Kind flag in %v", subjectKindList)
+	if o.SubjectKind == "" && o.group == "" && o.user == "" && o.sa == "" {
+		return fmt.Errorf("You must specify Subject's Kind. Use kind flag or [ --group | --user | --sa ]")
 	}
-	if a.useGroup {
-		a.SubjectKind = "Group"
+	if o.group != "" {
+		o.SubjectKind = "Group"
+		o.SubjectName = o.group
 	}
-	if a.useUser {
-		if a.SubjectKind != "" {
-			return fmt.Errorf("Multiple kind is not allowed. You must specify one of Subject Kind flag in %v", subjectKindList)
+	if o.user != "" {
+		if o.SubjectKind != "" {
+			return fmt.Errorf("Multiple kind is not allowed. You must specify Subject's Kind. Use kind flag or [ --group | --user | --sa ]")
 		}
-		a.SubjectKind = "User"
+		o.SubjectKind = "User"
+		o.SubjectName = o.user
 	}
-	if a.useSA {
-		if a.SubjectKind != "" {
-			return fmt.Errorf("Multiple kind is not allowed. You must specify one of Subject Kind flag in %v", subjectKindList)
+	if o.sa != "" {
+		if o.SubjectKind != "" {
+			return fmt.Errorf("Multiple kind is not allowed. You must specify Subject's Kind. Use kind flag or [ --group | --user | --sa ]")
 		}
-		a.SubjectKind = "ServiceAccount"
+		o.SubjectKind = "ServiceAccount"
+		o.SubjectName = o.sa
 	}
 	return nil
 }
 
-func (a AttachDetachOptions) GenerateSubject() (*rbacv1.Subject, error) {
+func (o *AttachDetachOptions) GenerateSubject() (*rbacv1.Subject, error) {
 	sub := &rbacv1.Subject{}
-	sub.Kind = a.SubjectKind
-	sub.Name = a.SubjectName
+	sub.Kind = o.SubjectKind
+	sub.Name = o.SubjectName
 
 	switch sub.Kind {
 	case "ServiceAccount":
-		if a.SubjectNamespace == "" {
+		if o.SubjectNamespace == "" {
 			return nil, fmt.Errorf("namespace is requireed when kind is ServiceAccount")
 		}
-		sub.Namespace = a.SubjectNamespace
+		sub.Namespace = o.SubjectNamespace
 
 	case "Group":
-		sub.APIGroup = "rbac.authorization.k8s.io"
+		if o.SubjectAPIGroup != "" {
+			sub.APIGroup = o.SubjectAPIGroup
+		} else {
+			sub.APIGroup = "rbac.authorization.k8s.io"
+		}
 
 	case "User":
-		sub.APIGroup = "rbac.authorization.k8s.io"
+		if o.SubjectAPIGroup != "" {
+			sub.APIGroup = o.SubjectAPIGroup
+		} else {
+			sub.APIGroup = "rbac.authorization.k8s.io"
+		}
 
 	default:
 		return nil, fmt.Errorf("Kind is allowed in %v", subjectKindList)

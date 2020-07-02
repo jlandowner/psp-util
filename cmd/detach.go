@@ -28,9 +28,14 @@ import (
 
 func init() {
 	rootCmd.AddCommand(detachCmd)
-	detachCmd.Flags().BoolVarP(&d.useGroup, "group", "g", false, "use Kind Group as Subject Kind")
-	detachCmd.Flags().BoolVarP(&d.useUser, "user", "u", false, "use Kind User as Subject Kind")
-	detachCmd.Flags().BoolVarP(&d.useSA, "sa", "s", false, "use Kind ServiceAccount as Subject Kind")
+	detachCmd.Flags().StringVarP(&d.group, "group", "g", "", "set Subject's Name and use Kind Group")
+	detachCmd.Flags().StringVarP(&d.user, "user", "u", "", "set Subject's Name and use Kind User")
+	detachCmd.Flags().StringVarP(&d.sa, "sa", "s", "", "set Subject's Name and use Kind ServiceAccount")
+
+	detachCmd.Flags().StringVar(&d.SubjectKind, "kind", "", "set Subject's Kind")
+	detachCmd.Flags().StringVar(&d.SubjectName, "name", "", "set Subject's Name")
+	detachCmd.Flags().StringVar(&d.SubjectAPIGroup, "api-group", "", "set Subject's APIGroup")
+
 	detachCmd.Flags().StringVarP(&d.SubjectNamespace, "namespace", "n", "", "only used when kind is namedspaced resource(e.g. ServiceAccount)")
 }
 
@@ -38,9 +43,9 @@ var (
 	d = &AttachDetachOptions{}
 
 	detachCmd = &cobra.Command{
-		Use:               "detach PSP-NAME SUBJECT-NAME [ --group | --user | --sa ]",
+		Use:               "detach PSP-NAME [ --group | --user | --sa ] SUBJECT-NAME",
 		Short:             "Detach PSP from RBAC Subject",
-		PersistentPreRunE: d.Complete,
+		PersistentPreRunE: d.ValidateAndComplete,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
