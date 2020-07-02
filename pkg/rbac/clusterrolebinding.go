@@ -42,6 +42,10 @@ func ListClusterRoleBindings(ctx context.Context, k8sclient *kubernetes.Clientse
 	return k8sclient.RbacV1().ClusterRoleBindings().List(ctx, metav1.ListOptions{})
 }
 
+func DeleteClusterRoleBindings(ctx context.Context, k8sclient *kubernetes.Clientset, name string) error {
+	return k8sclient.RbacV1().ClusterRoleBindings().Delete(ctx, name, metav1.DeleteOptions{})
+}
+
 func CreatePSPRoleBinding(ctx context.Context, k8sclient *kubernetes.Clientset, psp *policyv1.PodSecurityPolicy) (*rbacv1.ClusterRoleBinding, error) {
 	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
 		RoleRef: rbacv1.RoleRef{
