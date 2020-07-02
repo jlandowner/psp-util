@@ -13,35 +13,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cmd
+package utils
 
 import (
 	"fmt"
-	"os"
-
-	"github.com/spf13/cobra"
 )
 
 var (
-	kubeconfigPath string
-
-	rootCmd = &cobra.Command{
-		Use:   "psp-util",
-		Short: "psp-util is a command utility of Pod Security Policy",
-		Long: `
-A Kubectl extention to manage Pod Security Policy(PSP) and RBAC Resources.
-Complete documentation is available at http://github.com/jlandowner/psp-util
-`,
-	}
+	AnnotaionKeyPSPName = "psp-util.k8s.jlandowner.com/psp"
 )
 
-func init() {
-	rootCmd.PersistentFlags().StringVar(&kubeconfigPath, "kubeconfig", "", "kube config file (default is $HOME/.kube/config)")
+func GenerateName(pspName string) string {
+	return fmt.Sprintf("psp-util:%s", pspName)
 }
 
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+func GenerateAnotations(pspName string) map[string]string {
+	anotation := map[string]string{AnnotaionKeyPSPName: pspName}
+	return anotation
 }

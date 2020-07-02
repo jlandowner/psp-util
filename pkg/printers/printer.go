@@ -29,6 +29,11 @@ const (
 	tabwriterPadding  = 3
 	tabwriterPadChar  = ' '
 	tabwriterFlags    = tabwriter.RememberWidths
+
+	RedString   = "\x1b[31m%s\x1b[0m"
+	CianString  = "\x1b[36m%s\x1b[0m"
+	GreenString = "\x1b[32m%s\x1b[0m"
+	BlueString  = "\x1b[34m%s\x1b[0m"
 )
 
 // GetNewTabWriter returns a tabwriter that translates tabbed columns in input into properly aligned text.
@@ -41,10 +46,3 @@ func PrintLine(out io.Writer, columnNames []string) error {
 	_, err := fmt.Fprintf(out, "%s\n", strings.Join(columnNames, "\t"))
 	return err
 }
-
-var (
-	RedString   = "\x1b[31m%s\x1b[0m"
-	CianString  = "\x1b[36m%s\x1b[0m"
-	GreenString = "\x1b[32m%s\x1b[0m"
-	BlueString  = "\x1b[34m%s\x1b[0m"
-)
