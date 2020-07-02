@@ -18,44 +18,43 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/disiqueira/gotree"
 	"github.com/jlandowner/psp-util/pkg/client"
 	"github.com/jlandowner/psp-util/pkg/printers"
-	"github.com/jlandowner/psp-util/pkg/structured"
+	"github.com/jlandowner/psp-util/pkg/relations"
 	"github.com/spf13/cobra"
 )
 
 func init() {
-	rootCmd.AddCommand(viewCmd)
+	rootCmd.AddCommand(treeCmd)
 }
 
-var viewCmd = &cobra.Command{
-	Use:   "view",
-	Short: "View relation between PSP and RBAC",
-	Run: func(cmd *cobra.Command, args []string) {
+var treeCmd = &cobra.Command{
+	Use:   "tree",
+	Short: "View relational tree between PSP and Subjects",
+	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 		k8sclient, err := client.NewClient(&kubeconfigPath)
 		if err != nil {
-			log.Fatalf("Failed to load kubeconfig %v (%v)", kubeconfigPath, err.Error())
+			return fmt.Errorf("Failed to load kubeconfig %v: %v", kubeconfigPath, err.Error())
 		}
 
-		psps, err := structured.GetStructuredPSPs(ctx, k8sclient)
+		psps, err := relations.GetRelationalPSPs(ctx, k8sclient)
 		if err != nil {
-			log.Fatalln(err)
+			return err
 		}
 
 		w := os.Stdout
 		for _, psp := range psps {
-			pspTree := gotree.New(fmt.Sprintf("POD-SECURITY-POLICY {Name: "+printers.GreenString+"}", psp.Name))
+			pspTree := gotree.New(fmt.Sprintf("📙PodSecurityPolicy{Name: "+printers.GreenString+"}", psp.Name))
 			for _, cr := range psp.ClusterRoles {
-				crTree := gotree.New(fmt.Sprintf("CLUSTER-ROLE {Name: "+printers.GreenString+"}", cr.Name))
+				crTree := gotree.New(fmt.Sprintf("📕ClusterRole{Name: "+printers.GreenString+"}", cr.Name))
 				for _, crb := range cr.ClusterRoleBindings {
-					crbTree := gotree.New(fmt.Sprintf("CLUSTER-ROLE-BINDING {Name: "+printers.GreenString+"}", crb.Name))
+					crbTree := gotree.New(fmt.Sprintf("📘ClusterRoleBinding{Name: "+printers.GreenString+"}", crb.Name))
 					for _, sub := range crb.Subjects {
-						crbTree.Add(fmt.Sprintf("SUBJECT {Kind: "+printers.CianString+", Name: "+printers.RedString+", Namespace:"+printers.BlueString+"}", sub.Kind, sub.Name, sub.Namespace))
+						crbTree.Add(fmt.Sprintf("📗Subject{Kind: "+printers.CianString+", Name: "+printers.RedString+", Namespace: "+printers.BlueString+"}", sub.Kind, sub.Name, sub.Namespace))
 					}
 					crTree.AddTree(crbTree)
 				}
@@ -63,6 +62,7 @@ var viewCmd = &cobra.Command{
 			}
 			fmt.Fprintln(w, pspTree.Print())
 		}
+		return nil
 
 	},
 }

@@ -19,26 +19,26 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/jlandowner/psp-util/pkg/client"
 	"github.com/jlandowner/psp-util/pkg/printers"
-	"github.com/jlandowner/psp-util/pkg/structured"
+	"github.com/jlandowner/psp-util/pkg/relations"
 	"github.com/spf13/cobra"
 )
 
 func init() {
-	getCmd.AddCommand(getPspCmd)
+	rootCmd.AddCommand(listCmd)
 }
 
-var getPspCmd = &cobra.Command{
-	Use:   "psp",
-	Short: "Get Pod Security Policies and RBAC associated with it.",
-	Run: func(cmd *cobra.Command, args []string) {
+var listCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List PSP and RBAC associated with it.",
+	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 		k8sclient, err := client.NewClient(&kubeconfigPath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to load kubeconfig %v: %v\n", kubeconfigPath, err.Error())
-			return
+			return fmt.Errorf("Failed to load kubeconfig %v: %v", kubeconfigPath, err.Error())
 		}
 
 		var pspName string
@@ -46,29 +46,27 @@ var getPspCmd = &cobra.Command{
 			pspName = args[0]
 		}
 
-		var psps []structured.StructuredPodSecurityPolicy
+		var psps []relations.RelationalPodSecurityPolicy
 		if pspName != "" {
-			p, err := structured.GetStructuredPSP(ctx, k8sclient, pspName)
+			p, err := relations.GetRelationalPSP(ctx, k8sclient, pspName)
 			if err != nil {
-				fmt.Fprintln(os.Stderr, err.Error())
-				return
+				return err
 			}
 
-			psps = make([]structured.StructuredPodSecurityPolicy, 1)
+			psps = make([]relations.RelationalPodSecurityPolicy, 1)
 			psps[0] = *p
 
 		} else {
-			psps, err = structured.GetStructuredPSPs(ctx, k8sclient)
+			psps, err = relations.GetRelationalPSPs(ctx, k8sclient)
 			if err != nil {
-				fmt.Fprintln(os.Stderr, err.Error())
-				return
+				return err
 			}
 		}
 
 		w := printers.GetNewTabWriter(os.Stdout)
 		defer w.Flush()
 
-		printers.PrintLine(w, []string{"PSP-NAME", "CLUSTER-ROLE", "CLUSTER-ROLE-BINDING"})
+		printers.PrintLine(w, []string{"PSP-NAME", "CLUSTER-ROLE", "CLUSTER-ROLE-BINDING", "PSP-UTIL-MANAGED"})
 
 		for _, psp := range psps {
 			if len(psp.ClusterRoles) == 0 {
@@ -77,13 +75,15 @@ var getPspCmd = &cobra.Command{
 			}
 			for _, cr := range psp.ClusterRoles {
 				if len(cr.ClusterRoleBindings) == 0 {
-					printers.PrintLine(w, []string{psp.Name, cr.Name})
+					printers.PrintLine(w, []string{psp.Name, cr.Name, "", strconv.FormatBool(cr.IsManaged())})
 					continue
 				}
 				for _, crb := range cr.ClusterRoleBindings {
-					printers.PrintLine(w, []string{psp.Name, cr.Name, crb.Name})
+					printers.PrintLine(w, []string{psp.Name, cr.Name, crb.Name, strconv.FormatBool(cr.IsManaged())})
 				}
 			}
 		}
+		// fmt.Println(attachCmd.UsageTemplate())
+		return nil
 	},
 }

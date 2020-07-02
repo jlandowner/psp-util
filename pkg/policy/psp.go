@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package psp
+package policy
 
 import (
 	"context"
@@ -23,10 +23,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func List(ctx context.Context, k8sclient *kubernetes.Clientset) (*policyv1.PodSecurityPolicyList, error) {
+func ListPSP(ctx context.Context, k8sclient *kubernetes.Clientset) (*policyv1.PodSecurityPolicyList, error) {
 	return k8sclient.PolicyV1beta1().PodSecurityPolicies().List(ctx, metav1.ListOptions{})
 }
 
-func Get(ctx context.Context, k8sclient *kubernetes.Clientset, name string) (*policyv1.PodSecurityPolicy, error) {
+func GetPSP(ctx context.Context, k8sclient *kubernetes.Clientset, name string) (*policyv1.PodSecurityPolicy, error) {
 	return k8sclient.PolicyV1beta1().PodSecurityPolicies().Get(ctx, name, metav1.GetOptions{})
 }
