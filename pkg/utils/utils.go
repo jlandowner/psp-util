@@ -24,7 +24,7 @@ var (
 )
 
 func GenerateName(pspName string) string {
-	return fmt.Sprintf("psp-util:%s", pspName)
+	return fmt.Sprintf("psp-util.%s", pspName)
 }
 
 func GenerateAnotations(pspName string) map[string]string {
