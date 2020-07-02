@@ -83,7 +83,6 @@ var listCmd = &cobra.Command{
 				}
 			}
 		}
-		// fmt.Println(attachCmd.UsageTemplate())
 		return nil
 	},
 }
