@@ -70,7 +70,7 @@ var listCmd = &cobra.Command{
 
 		for _, psp := range psps {
 			if len(psp.ClusterRoles) == 0 {
-				printers.PrintLine(w, []string{psp.Name})
+				printers.PrintLine(w, []string{psp.Name, "", "", ""})
 				continue
 			}
 			for _, cr := range psp.ClusterRoles {
