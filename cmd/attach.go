@@ -47,7 +47,7 @@ var (
 
 	attachCmd = &cobra.Command{
 		Use:               "attach PSP-NAME [ --group | --user | --sa ] SUBJECT-NAME",
-		Short:             "Attach PSP to RBAC Subject",
+		Short:             "Attach PSP to RBAC Subject (Auto generate managed ClusterRole and ClusterRoleBinding)",
 		PersistentPreRunE: a.ValidateAndComplete,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
