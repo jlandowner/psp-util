@@ -8,20 +8,19 @@ import (
 
 func TestGenerateAnotations(t *testing.T) {
 	tests := []struct {
-		title   string
-		pspName string
-		expect  string
+		name   string
+		expect string
 	}{
 		{
-			title:   "':' will be '.'",
-			pspName: "psp-util:eks.privileged_01/",
-			expect:  "psp-util.eks.privileged_01.",
+			name:   "test1",
+			expect: "psp-util.test1",
 		},
 	}
 
 	for _, test := range tests {
-		t.Log(test.title, test.pspName, test.expect)
-		ano := GenerateAnotations(test.pspName)
+		t.Log(test.name, test.expect)
+		pspName := GenerateName(test.name)
+		ano := GenerateAnotations(pspName)
 		val, ok := ano[AnnotaionKeyPSPName]
 		assert.True(t, ok)
 		assert.Equal(t, test.expect, val)
