@@ -19,18 +19,20 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jlandowner/psp-util/cmd/options"
 	"github.com/jlandowner/psp-util/pkg/client"
 	"github.com/jlandowner/psp-util/pkg/policy"
 	"github.com/jlandowner/psp-util/pkg/rbac"
 	"github.com/jlandowner/psp-util/pkg/utils"
 	"github.com/spf13/cobra"
+	apierrs "k8s.io/apimachinery/pkg/api/errors"
 )
 
 func init() {
 	rootCmd.AddCommand(detachCmd)
-	detachCmd.Flags().StringVarP(&d.group, "group", "g", "", "set Subject's Name and use Kind Group")
-	detachCmd.Flags().StringVarP(&d.user, "user", "u", "", "set Subject's Name and use Kind User")
-	detachCmd.Flags().StringVarP(&d.sa, "sa", "s", "", "set Subject's Name and use Kind ServiceAccount")
+	detachCmd.Flags().StringVarP(&d.Group, "group", "g", "", "set Subject's Name and use Kind Group")
+	detachCmd.Flags().StringVarP(&d.User, "user", "u", "", "set Subject's Name and use Kind User")
+	detachCmd.Flags().StringVarP(&d.ServiceAccount, "sa", "s", "", "set Subject's Name and use Kind ServiceAccount")
 
 	detachCmd.Flags().StringVar(&d.SubjectKind, "kind", "", "set Subject's Kind")
 	detachCmd.Flags().StringVar(&d.SubjectName, "name", "", "set Subject's Name")
@@ -40,12 +42,12 @@ func init() {
 }
 
 var (
-	d = &AttachDetachOptions{}
+	d = &options.AttachDetachOptions{}
 
 	detachCmd = &cobra.Command{
 		Use:               "detach PSP-NAME [ --group | --user | --sa ] SUBJECT-NAME",
 		Short:             "Detach PSP from RBAC Subject",
-		PersistentPreRunE: d.ValidateAndComplete,
+		PersistentPreRunE: d.PreRunE,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
@@ -54,13 +56,16 @@ var (
 				return fmt.Errorf("Failed to load kubeconfig %v: %v", kubeconfigPath, err.Error())
 			}
 
-			sub, err := d.GenerateSubject()
+			sub, err := d.GenerateSubject(&kubeconfigPath)
 			if err != nil {
 				return fmt.Errorf("Invalid options: %v", err.Error())
 			}
 
 			// Get PodSecurityPolicy
 			psp, err := policy.GetPSP(ctx, k8sclient, d.PSPName)
+			if apierrs.IsNotFound(err) {
+				return fmt.Errorf("PSP %s is not found. See `psp-util tree`", a.PSPName)
+			}
 			if err != nil {
 				return fmt.Errorf("Failed to get PSP: %s", err.Error())
 			}
@@ -68,6 +73,9 @@ var (
 
 			// Get ClusterRole
 			cr, err := rbac.GetClusterRole(ctx, k8sclient, resourceName)
+			if apierrs.IsNotFound(err) {
+				return fmt.Errorf("Managed ClusterRole is not found. Please remove subjects manually from the ClusterRoleBindings. See the resources by `psp-util tree`")
+			}
 			if cr == nil || err != nil {
 				fmt.Printf("Failed to get ClusterRole: %s\n", err.Error())
 				return fmt.Errorf("psp '%s' has NOT been attached to %s. See `psp-util tree`", psp.Name, sub.String())

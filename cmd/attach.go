@@ -19,20 +19,20 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jlandowner/psp-util/cmd/options"
 	"github.com/jlandowner/psp-util/pkg/client"
 	"github.com/jlandowner/psp-util/pkg/policy"
 	"github.com/jlandowner/psp-util/pkg/rbac"
 	"github.com/jlandowner/psp-util/pkg/utils"
 	"github.com/spf13/cobra"
-	rbacv1 "k8s.io/api/rbac/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 )
 
 func init() {
 	rootCmd.AddCommand(attachCmd)
-	attachCmd.Flags().StringVarP(&a.group, "group", "g", "", "set Subject's Name and use Kind Group")
-	attachCmd.Flags().StringVarP(&a.user, "user", "u", "", "set Subject's Name and use Kind User")
-	attachCmd.Flags().StringVarP(&a.sa, "sa", "s", "", "set Subject's Name and use Kind ServiceAccount")
+	attachCmd.Flags().StringVarP(&a.Group, "group", "g", "", "set Subject's Name and use Kind Group")
+	attachCmd.Flags().StringVarP(&a.User, "user", "u", "", "set Subject's Name and use Kind User")
+	attachCmd.Flags().StringVarP(&a.ServiceAccount, "sa", "s", "", "set Subject's Name and use Kind ServiceAccount")
 
 	attachCmd.Flags().StringVar(&a.SubjectKind, "kind", "", "set Subject's Kind")
 	attachCmd.Flags().StringVar(&a.SubjectName, "name", "", "set Subject's Name")
@@ -42,13 +42,12 @@ func init() {
 }
 
 var (
-	subjectKindList = []string{"Group", "User", "ServiceAccount"}
-	a               = &AttachDetachOptions{}
+	a = &options.AttachDetachOptions{}
 
 	attachCmd = &cobra.Command{
 		Use:               "attach PSP-NAME [ --group | --user | --sa ] SUBJECT-NAME",
 		Short:             "Attach PSP to RBAC Subject (Auto generate managed ClusterRole and ClusterRoleBinding)",
-		PersistentPreRunE: a.ValidateAndComplete,
+		PersistentPreRunE: a.PreRunE,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
@@ -57,13 +56,16 @@ var (
 				return fmt.Errorf("Failed to load kubeconfig %v: %v", kubeconfigPath, err.Error())
 			}
 
-			sub, err := a.GenerateSubject()
+			sub, err := a.GenerateSubject(&kubeconfigPath)
 			if err != nil {
 				return fmt.Errorf("Invalid options: %v", err.Error())
 			}
 
 			// Get PodSecurityPolicy
 			psp, err := policy.GetPSP(ctx, k8sclient, a.PSPName)
+			if apierrs.IsNotFound(err) {
+				return fmt.Errorf("PSP %s is not found. See `psp-util tree`", a.PSPName)
+			}
 			if err != nil {
 				return fmt.Errorf("Failed to get PSP: %s", err.Error())
 			}
@@ -111,77 +113,3 @@ var (
 		},
 	}
 )
-
-type AttachDetachOptions struct {
-	PSPName          string
-	SubjectKind      string
-	SubjectName      string
-	SubjectNamespace string
-	SubjectAPIGroup  string
-
-	group string
-	user  string
-	sa    string
-}
-
-func (o *AttachDetachOptions) ValidateAndComplete(cmd *cobra.Command, args []string) error {
-	if len(args) != 1 {
-		return fmt.Errorf("Args is invalid. Required: `PSP-NAME`")
-	}
-	o.PSPName = args[0]
-
-	if o.SubjectKind == "" && o.group == "" && o.user == "" && o.sa == "" {
-		return fmt.Errorf("You must specify Subject's Kind. Use kind flag or [ --group | --user | --sa ]")
-	}
-	if o.group != "" {
-		o.SubjectKind = "Group"
-		o.SubjectName = o.group
-	}
-	if o.user != "" {
-		if o.SubjectKind != "" {
-			return fmt.Errorf("Multiple kind is not allowed. You must specify Subject's Kind. Use kind flag or [ --group | --user | --sa ]")
-		}
-		o.SubjectKind = "User"
-		o.SubjectName = o.user
-	}
-	if o.sa != "" {
-		if o.SubjectKind != "" {
-			return fmt.Errorf("Multiple kind is not allowed. You must specify Subject's Kind. Use kind flag or [ --group | --user | --sa ]")
-		}
-		o.SubjectKind = "ServiceAccount"
-		o.SubjectName = o.sa
-	}
-	return nil
-}
-
-func (o *AttachDetachOptions) GenerateSubject() (*rbacv1.Subject, error) {
-	sub := &rbacv1.Subject{}
-	sub.Kind = o.SubjectKind
-	sub.Name = o.SubjectName
-
-	switch sub.Kind {
-	case "ServiceAccount":
-		if o.SubjectNamespace == "" {
-			return nil, fmt.Errorf("namespace is requireed when kind is ServiceAccount")
-		}
-		sub.Namespace = o.SubjectNamespace
-
-	case "Group":
-		if o.SubjectAPIGroup != "" {
-			sub.APIGroup = o.SubjectAPIGroup
-		} else {
-			sub.APIGroup = "rbac.authorization.k8s.io"
-		}
-
-	case "User":
-		if o.SubjectAPIGroup != "" {
-			sub.APIGroup = o.SubjectAPIGroup
-		} else {
-			sub.APIGroup = "rbac.authorization.k8s.io"
-		}
-
-	default:
-		return nil, fmt.Errorf("Kind is allowed in %v", subjectKindList)
-	}
-	return sub, nil
-}

@@ -16,6 +16,7 @@ limitations under the License.
 package client
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -35,6 +36,27 @@ func NewClient(kubeconfigPath *string) (*kubernetes.Clientset, error) {
 		return nil, err
 	}
 	return kubernetes.NewForConfig(config)
+}
+
+func GetDefaultNamespace(kubeconfigPath *string) (string, error) {
+	if *kubeconfigPath == "" {
+		*kubeconfigPath = filepath.Join(homeDir(), ".kube", "config")
+	}
+	config, err := clientcmd.LoadFromFile(*kubeconfigPath)
+	if err != nil {
+		return "", err
+	}
+
+	currentContext, ok := config.Contexts[config.CurrentContext]
+	if !ok {
+		return "", fmt.Errorf("Failed to get currentcontext %s in kubeconfig %v", config.CurrentContext, *kubeconfigPath)
+	}
+
+	namespace := currentContext.Namespace
+	if namespace == "" {
+		return "default", nil
+	}
+	return namespace, nil
 }
 
 func homeDir() string {
