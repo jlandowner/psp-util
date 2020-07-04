@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Config
+clusters:
+- cluster:
+    certificate-authority-data: dGVzdAo=
+    server: https://kubernetes.docker.internal:6443
+  name: docker-desktop
+contexts:
+- context:
+    cluster: docker-desktop
+    namespace: "test-a"
+    user: docker-desktop
+  name: docker-desktop
+- context:
+    cluster: docker-desktop
+    namespace: "test-b"
+    user: docker-desktop
+  name: docker-for-desktop
+current-context: docker-desktop
+preferences: {}
+users:
+- name: docker-desktop
+  user:
+    client-certificate-data: dGVzdAo=
+    client-key-data: dGVzdAo=
