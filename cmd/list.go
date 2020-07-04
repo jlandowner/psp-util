@@ -41,26 +41,9 @@ var listCmd = &cobra.Command{
 			return fmt.Errorf("Failed to load kubeconfig %v: %v", kubeconfigPath, err.Error())
 		}
 
-		var pspName string
-		if len(args) > 0 {
-			pspName = args[0]
-		}
-
-		var psps []relations.RelationalPodSecurityPolicy
-		if pspName != "" {
-			p, err := relations.GetRelationalPSP(ctx, k8sclient, pspName)
-			if err != nil {
-				return err
-			}
-
-			psps = make([]relations.RelationalPodSecurityPolicy, 1)
-			psps[0] = *p
-
-		} else {
-			psps, err = relations.GetRelationalPSPs(ctx, k8sclient)
-			if err != nil {
-				return err
-			}
+		psps, err := relations.GetRelationalPSPs(ctx, k8sclient)
+		if err != nil {
+			return err
 		}
 
 		w := printers.GetNewTabWriter(os.Stdout)
