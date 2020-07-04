@@ -25,6 +25,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+const (
+	APIGroup = "rbac.authorization.k8s.io"
+)
+
 func GetClusterRole(ctx context.Context, k8sclient *kubernetes.Clientset, name string) (*rbacv1.ClusterRole, error) {
 	return k8sclient.RbacV1().ClusterRoles().Get(ctx, name, metav1.GetOptions{})
 }

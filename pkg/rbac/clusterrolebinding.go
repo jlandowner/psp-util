@@ -49,7 +49,7 @@ func DeleteClusterRoleBindings(ctx context.Context, k8sclient *kubernetes.Client
 func CreatePSPRoleBinding(ctx context.Context, k8sclient *kubernetes.Clientset, psp *policyv1.PodSecurityPolicy) (*rbacv1.ClusterRoleBinding, error) {
 	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
 		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
+			APIGroup: APIGroup,
 			Kind:     "ClusterRole",
 			Name:     utils.GenerateName(psp.Name),
 		},
