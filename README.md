@@ -114,25 +114,22 @@ it will generate them automaticaly.
 
 ### Examples
 
-Attach MyPSP to Subject{APIGroup: rbac.authorization.k8s.io, Kind: Group, Name: system:authenticated}.
+Attaching `my-psp` to Group `system:authenticated`.
 
 ```shell
-$ kubectl psp-util attach MyPSP --group system:authenticated
-Managed ClusterRole is not found...Created
-Managed ClusterRoleBinding is not found...Created
-
+$ kubectl psp-util attach my-psp --group system:authenticated
 ```
 
-Attach MyPSP to Subject{Kind: ServiceAccount, Name: default, Namespace: kube-system}.
+Attaching `my-psp` to `default` ServiceAccount in `kube-system` namespace.
 
 ```shell
-$ kubectl psp-util attach MyPSP --sa default -n kube-system
+$ kubectl psp-util attach my-psp --sa default -n kube-system
 ```
 
-Or, set all subject's info directly.
+Or, you can set all [Subject's info](https://pkg.go.dev/k8s.io/api@v0.18.5/rbac/v1?tab=doc#Subject) directly.
 
 ```shell
-$ kubectl psp-util attach MyPSP --api-group=rbac.authorization.k8s.io --kind=Group --name=system:authenticated
+$ kubectl psp-util attach my-psp --api-group=rbac.authorization.k8s.io --kind=Group --name=system:authenticated
 ```
 
 
@@ -165,6 +162,63 @@ Flags:
 ```shell
 Usage:
   psp-util clean PSP-NAME
+```
+
+# Demo
+
+Create PSP by using [kube-psp-advisor](https://github.com/sysdiglabs/kube-psp-advisor).
+
+```shell
+$ kubectl advise-psp inspect | kubectl -f -
+```
+
+See the PSP has been created.
+
+```shell
+$ kubectl psp-util list
+PSP-NAME                                 CLUSTER-ROLE                       CLUSTER-ROLE-BINDING                  PSP-UTIL-MANAGED
+eks.privileged                           eks:podsecuritypolicy:privileged   eks:podsecuritypolicy:authenticated   false
+pod-security-policy-all-20200702180710  
+```
+
+Attach the PSP to Group named `system:authenticated`
+
+```shell
+$ kubectl psp-util attach pod-security-policy-all-20200702180710 --group system:authenticated
+Managed ClusterRole is not found...Created
+Managed ClusterRoleBinding is not found...Created
+```
+
+Then you can see a ClusterRole and ClusterRoleBinding are created and the PSP is effective to the Subject.
+
+```shell
+$ kubectl psp-util list
+PSP-NAME                                 CLUSTER-ROLE                                      CLUSTER-ROLE-BINDING                              PSP-UTIL-MANAGED
+eks.privileged                           eks:podsecuritypolicy:privileged                  eks:podsecuritypolicy:authenticated               false
+pod-security-policy-all-20200702180710   psp-util.pod-security-policy-all-20200702180710   pdp-util.pod-security-policy-all-20200702180710   true
+
+$ kubectl psp-util tree
+📙 PSP eks.privileged
+└── 📕 ClusterRole eks:podsecuritypolicy:privileged
+    └── 📘 ClusterRoleBinding eks:podsecuritypolicy:authenticated
+        └── 📗 Subject{Kind: Group, Name: system:authenticated, Namespace: }
+
+📙 PSP pod-security-policy-all-20200702180710
+└── 📕 ClusterRole psp-util.pod-security-policy-all-20200702180710
+    └── 📘 ClusterRoleBinding psp-util.pod-security-policy-all-20200702180710
+        └── 📗 Subject{Kind: Group, Name: system:authenticated, Namespace: }
+
+$ kubectl describe clusterrolebindings psp-util.pod-security-policy-all-20200702180710
+Name:         psp-util.pod-security-policy-all-20200702180710
+Labels:       <none>
+Annotations:  psp-util.k8s.jlandowner.com/psp: pod-security-policy-all-20200702180710
+Role:
+  Kind:  ClusterRole
+  Name:  psp-util.pod-security-policy-all-20200702180710
+Subjects:
+  Kind   Name                  Namespace
+  ----   ----                  ---------
+  Group  system:authenticated  
 ```
 
 # LICENSE
