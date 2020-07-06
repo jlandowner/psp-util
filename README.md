@@ -1,5 +1,5 @@
-# Pod Security Policy Utilities
-A Kubectl extention to manage `Pod Security Policy(PSP)` and RBAC Resources.
+# Pod Security Policy Utility
+A Kubectl extention utility to manage `Pod Security Policy(PSP)` and RBAC Resources.
 
 Attach/Detach PSP to RBACs(Group, User) or ServiceAccounts and view the relations which PSP is effected to each Subjects.
 
@@ -8,7 +8,7 @@ Attach/Detach PSP to RBACs(Group, User) or ServiceAccounts and view the relation
 ```shell
 $ psp-util --help
 
-A Kubectl extention to manage Pod Security Policy(PSP) and RBAC Resources.
+A Kubectl extention utility to manage Pod Security Policy(PSP) and RBAC Resources.
 Attach/Detach PSP to RBACs(Group, User) or ServiceAccounts and
 view the relations which PSP is effected to each Subjects.
 

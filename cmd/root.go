@@ -27,9 +27,9 @@ var (
 
 	rootCmd = &cobra.Command{
 		Use:   "psp-util",
-		Short: "psp-util is a command utility of Pod Security Policy",
+		Short: "Utility to manage Pod Security Policy(PSP) and RBAC Resources",
 		Long: `
-A Kubectl extention to manage Pod Security Policy(PSP) and RBAC Resources.
+A Kubectl extention utility to manage Pod Security Policy(PSP) and RBAC Resources.
 Attach/Detach PSP to RBACs(Group, User) or ServiceAccounts and
 view the relations which PSP is effected to each Subjects.
 
