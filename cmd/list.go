@@ -33,7 +33,7 @@ func init() {
 
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List PSP and RBAC associated with it.",
+	Short: "List PSPs and the related RBACs in cluster",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 		k8sclient, err := client.NewClient(&kubeconfigPath)

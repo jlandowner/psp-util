@@ -33,7 +33,7 @@ func init() {
 
 var treeCmd = &cobra.Command{
 	Use:   "tree",
-	Short: "View relational tree between PSP and Subjects",
+	Short: "View a relational tree between PSP and Subjects in cluster",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 		k8sclient, err := client.NewClient(&kubeconfigPath)
