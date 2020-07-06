@@ -30,7 +30,12 @@ var (
 		Short: "psp-util is a command utility of Pod Security Policy",
 		Long: `
 A Kubectl extention to manage Pod Security Policy(PSP) and RBAC Resources.
+Attach/Detach PSP to RBACs(Group, User) or ServiceAccounts and
+view the relations which PSP is effected to each Subjects.
+
 Complete documentation is available at http://github.com/jlandowner/psp-util
+
+Apache License Version 2.0 Copyright 2020 jlandowner
 `,
 	}
 )

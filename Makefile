@@ -1,5 +1,5 @@
 NAME = psp-util
-VERSION = v0.1.0
+VERSION = v0.0.1
 build:
 	go build -o bin/${NAME} main.go
 
@@ -9,7 +9,8 @@ multi-build:
 	GOOS=linux GOARCH=amd64 go build -o bin/linux_amd64/${NAME} main.go
 
 update-version:
-	sed -i.bak -e "s/v[0-9].[0-9].[0-9]/${VERSION}/" ./cmd/version.go
+	sed -i.bak -e "s/v[0-9].[0-9].[0-9]/${VERSION}/g" ./cmd/version.go
+	sed -i.bak -e "s/v[0-9].[0-9].[0-9]/${VERSION}/g" ./psp-util.yaml
 
 release: update-version multi-build
 	mkdir -p bin/release
