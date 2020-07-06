@@ -78,6 +78,10 @@ $ psp-util tree
 
 `attach` attaches PSP to Subjects(Group, User or ServiceAccount).
 
+If there is no managed ClusterRole and ClusterRoleBinding associated with the given PSP, 
+it will generate them automaticaly.
+
+
 ```shell
 Usage:
   psp-util attach PSP-NAME [ --group | --user | --sa ] SUBJECT-NAME [flags]
@@ -96,10 +100,11 @@ Flags:
 
 Attach MyPSP to Subject{APIGroup: rbac.authorization.k8s.io, Kind: Group, Name: system:authenticated}.
 
-If there is no managed ClusterRole and ClusterRoleBinding associated with the PSP, generate them and bind them.
-
 ```shell
 $ psp-util attach MyPSP --group system:authenticated
+Managed ClusterRole is not found...Created
+Managed ClusterRoleBinding is not found...Created
+
 ```
 
 Attach MyPSP to Subject{Kind: ServiceAccount, Name: default, Namespace: kube-system}.
