@@ -37,6 +37,7 @@ Use "psp-util [command] --help" for more information about a command.
 ## list
 
 `list` shows all PSPs in cluster, and also ClusterRoles and ClusterRoleBindings associated with each of them.
+
 A column `PSP-UTIL-MANAGED` is whether these ClusterRoles and ClusterRoleBindings are auto-created and managed by `psp-util`.
 
 ```shell
@@ -74,6 +75,7 @@ $ psp-util tree
 ```
 
 ## attach
+
 `attach` attaches PSP to Subjects(Group, User or ServiceAccount).
 
 ```shell
@@ -93,6 +95,7 @@ Flags:
 ### Examples
 
 Attach MyPSP to Subject{APIGroup: rbac.authorization.k8s.io, Kind: Group, Name: system:authenticated}.
+
 If there is no managed ClusterRole and ClusterRoleBinding associated with the PSP, generate them and bind them.
 
 ```shell
@@ -113,7 +116,9 @@ $ psp-util attach MyPSP --api-group=rbac.authorization.k8s.io --kind=Group --nam
 
 
 ## detach
+
 `detach` detached a Subject from PSP.
+
 It removes the Subject from the ClusterRoleBinding only if there is a managed ClusterRoleBinding in cluster.
 
 All the options are the same as for the `attach` command.
@@ -133,6 +138,7 @@ Flags:
 ```
 
 ## clean
+
 `clean` delete a managed ClusterRole and ClusterRoleBinding.
 
 ```shell
