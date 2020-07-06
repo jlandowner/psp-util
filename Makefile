@@ -12,10 +12,6 @@ update-version:
 	sed -i.bak -e "s/v[0-9].[0-9].[0-9][-alpha]*[-beta]*/${VERSION}/g" ./cmd/version.go
 	sed -i.bak -e "s/v[0-9].[0-9].[0-9][-alpha]*[-beta]*/${VERSION}/g" ./psp-util.yaml
 
-checksum:
-	shasum -a 256 bin/release/psp-util_v1.0.0-alpha_darwin_amd64.tar.gz | awk '{print $$1}'
-	shasum -a 256 bin/release/psp-util_v1.0.0-alpha_linux_amd64.tar.gz | awk '{print $$1}'
-
 release: update-version multi-build
 	mkdir -p bin/release
 	tar -zcvf bin/release/${NAME}_${VERSION}_darwin_amd64.tar.gz LICENSE -C bin/darwin_amd64/ ${NAME}
