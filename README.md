@@ -54,22 +54,22 @@ restricted                               psp-util.restricted                    
 
 ```shell
 $ psp-util tree
-📙PSP eks.privileged
-└── 📕ClusterRole eks:podsecuritypolicy:privileged
-    └── 📘ClusterRoleBinding eks:podsecuritypolicy:authenticated
-        └── 📗Subject{Kind: Group, Name: system:master, Namespace: }
-        └── 📗Subject{Kind: ServiceAccount, Name: default, Namespace: kube-system}
+📙 PSP eks.privileged
+└── 📕 ClusterRole eks:podsecuritypolicy:privileged
+    └── 📘 ClusterRoleBinding eks:podsecuritypolicy:authenticated
+        └── 📗 Subject{Kind: Group, Name: system:master, Namespace: }
+        └── 📗 Subject{Kind: ServiceAccount, Name: default, Namespace: kube-system}
 
-📙PSP pod-security-policy-all-20200702180710
-└── 📕ClusterRole psp-util.pod-security-policy-all-20200702180710
-    └── 📘ClusterRoleBinding psp-util.pod-security-policy-all-20200702180710
-        └── 📗Subject{Kind: Group, Name: system:authenticated, Namespace: }
+📙 PSP pod-security-policy-all-20200702180710
+└── 📕 ClusterRole psp-util.pod-security-policy-all-20200702180710
+    └── 📘 ClusterRoleBinding psp-util.pod-security-policy-all-20200702180710
+        └── 📗 Subject{Kind: Group, Name: system:authenticated, Namespace: }
 
-📙PSP restricted
-└── 📕ClusterRole psp-util.restricted
-    └── 📘ClusterRoleBinding psp-util.restricted
-        └── 📗Subject{Kind: Group, Name: my:group, Namespace: }
-        └── 📗Subject{Kind: ServiceAccount, Name: default, Namespace: default}
+📙 PSP restricted
+└── 📕 ClusterRole psp-util.restricted
+    └── 📘 ClusterRoleBinding psp-util.restricted
+        └── 📗 Subject{Kind: Group, Name: my:group, Namespace: }
+        └── 📗 Subject{Kind: ServiceAccount, Name: default, Namespace: default}
 
 ```
 

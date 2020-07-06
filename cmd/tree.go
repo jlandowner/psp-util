@@ -48,13 +48,13 @@ var treeCmd = &cobra.Command{
 
 		w := os.Stdout
 		for _, psp := range psps {
-			pspTree := gotree.New(fmt.Sprintf("📙PSP "+printers.GreenString, psp.Name))
+			pspTree := gotree.New(fmt.Sprintf("📙 PSP "+printers.GreenString, psp.Name))
 			for _, cr := range psp.ClusterRoles {
-				crTree := gotree.New(fmt.Sprintf("📕ClusterRole "+printers.GreenString, cr.Name))
+				crTree := gotree.New(fmt.Sprintf("📕 ClusterRole "+printers.GreenString, cr.Name))
 				for _, crb := range cr.ClusterRoleBindings {
-					crbTree := gotree.New(fmt.Sprintf("📘ClusterRoleBinding "+printers.GreenString, crb.Name))
+					crbTree := gotree.New(fmt.Sprintf("📘 ClusterRoleBinding "+printers.GreenString, crb.Name))
 					for _, sub := range crb.Subjects {
-						crbTree.Add(fmt.Sprintf("📗Subject{Kind: "+printers.CianString+", Name: "+printers.RedString+", Namespace: "+printers.BlueString+"}", sub.Kind, sub.Name, sub.Namespace))
+						crbTree.Add(fmt.Sprintf("📗 Subject{Kind: "+printers.CianString+", Name: "+printers.RedString+", Namespace: "+printers.BlueString+"}", sub.Kind, sub.Name, sub.Namespace))
 					}
 					crTree.AddTree(crbTree)
 				}
