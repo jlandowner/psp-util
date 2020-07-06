@@ -78,10 +78,6 @@ $ psp-util tree
 
 `attach` attaches PSP to Subjects(Group, User or ServiceAccount).
 
-If there is no managed ClusterRole and ClusterRoleBinding associated with the given PSP, 
-it will generate them automaticaly.
-
-
 ```shell
 Usage:
   psp-util attach PSP-NAME [ --group | --user | --sa ] SUBJECT-NAME [flags]
@@ -95,6 +91,9 @@ Flags:
       --kind string        set Subject's Kind
       --name string        set Subject's Name
 ```
+
+If there is no managed ClusterRole and ClusterRoleBinding associated with the given PSP, 
+it will generate them automaticaly.
 
 ### Examples
 
