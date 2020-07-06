@@ -14,14 +14,14 @@ spec:
       matchLabels:
         arch: amd64
         os: darwin
-    sha256: 703eb95b4e9643f0edae0420aaf8dbb23ffd4227c6cf62a036195583340ccadf
+    sha256: fd30b49972abae946c967a946be2bbb1fa49a729328c1d8b1b47fcde45d03195
     uri: https://github.com/jlandowner/psp-util/releases/download/v1.0.1/psp-util_v1.0.1_darwin_amd64.tar.gz
   - bin: psp-util
     selector:
       matchLabels:
         arch: amd64
         os: linux
-    sha256: d722ab3dc4290509844fce3f6acdf353a2cff87a3a5d53a94715bac5e38e9e54
+    sha256: 5b73c312640b3147b04f577e82da58dcb1105b54d5bb305a16f083b466344a24
     uri: https://github.com/jlandowner/psp-util/releases/download/v1.0.1/psp-util_v1.0.1_linux_amd64.tar.gz
   - bin: psp-util
     selector:
