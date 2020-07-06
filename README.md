@@ -10,7 +10,7 @@ See the Best Practices of PSP:
 - https://aws.github.io/aws-eks-best-practices/pods/#recommendations
 - https://github.com/sysdiglabs/kube-psp-advisor
 
-# Install
+# Installation
 
 You can install it by [krew](https://krew.sigs.k8s.io).
 After [installing krew](https://krew.sigs.k8s.io/docs/user-guide/setup/install/), run the following command:
