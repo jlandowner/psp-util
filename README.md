@@ -1,7 +1,7 @@
 # Pod Security Policy Utility
-A Kubectl extention utility to manage `Pod Security Policy(PSP)` and RBAC Resources.
+A Kubectl plugin to manage `Pod Security Policy(PSP)` and RBAC Resources.
 
-Attach/Detach PSP to RBACs(Group, User) or ServiceAccounts and view the relations which PSP is effected to each Subjects.
+Attach/Detach PSP to/from RBACs(Group, User) or ServiceAccounts and view the relations which PSP is effected to the Subjects in cluster.
 
 See the details of PSP: 
 - https://kubernetes.io/docs/concepts/policy/pod-security-policy/
@@ -25,7 +25,7 @@ kubectl krew install --manifest-url https://raw.githubusercontent.com/jlandowner
 ```shell
 $ kubectl psp-util
 
-A Kubectl extention utility to manage Pod Security Policy(PSP) and related RBAC Resources.
+A Kubectl plugin to manage Pod Security Policy(PSP) and the related RBAC Resources.
 Attach/Detach PSP to/from RBACs(Group, User) or ServiceAccounts and
 view the relations which PSP is effected to the Subjects in cluster.
 
