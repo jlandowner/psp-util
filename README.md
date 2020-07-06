@@ -3,14 +3,31 @@ A Kubectl extention utility to manage `Pod Security Policy(PSP)` and RBAC Resour
 
 Attach/Detach PSP to RBACs(Group, User) or ServiceAccounts and view the relations which PSP is effected to each Subjects.
 
+See the details of PSP: 
+- https://kubernetes.io/docs/concepts/policy/pod-security-policy/
+
+See the Best Practices of PSP: 
+- https://aws.github.io/aws-eks-best-practices/pods/#recommendations
+- https://github.com/sysdiglabs/kube-psp-advisor
+
+# Install
+
+You can install it by [krew](https://krew.sigs.k8s.io).
+After [installing krew](https://krew.sigs.k8s.io/docs/user-guide/setup/install/), run the following command:
+
+```shell
+kubectl krew install --manifest-url https://raw.githubusercontent.com/jlandowner/psp-util/master/psp-util.yaml
+
+```
+
 # Usage
 
 ```shell
-$ psp-util --help
+$ kubectl psp-util
 
-A Kubectl extention utility to manage Pod Security Policy(PSP) and RBAC Resources.
-Attach/Detach PSP to RBACs(Group, User) or ServiceAccounts and
-view the relations which PSP is effected to each Subjects.
+A Kubectl extention utility to manage Pod Security Policy(PSP) and related RBAC Resources.
+Attach/Detach PSP to/from RBACs(Group, User) or ServiceAccounts and
+view the relations which PSP is effected to the Subjects in cluster.
 
 Complete documentation is available at http://github.com/jlandowner/psp-util
 
@@ -41,7 +58,7 @@ Use "psp-util [command] --help" for more information about a command.
 A column `PSP-UTIL-MANAGED` is whether these ClusterRoles and ClusterRoleBindings are auto-created and managed by `psp-util`.
 
 ```shell
-$ psp-util list
+$ kubectl psp-util list
 PSP-NAME                                 CLUSTER-ROLE                                      CLUSTER-ROLE-BINDING                              PSP-UTIL-MANAGED
 eks.privileged                           eks:podsecuritypolicy:privileged                  eks:podsecuritypolicy:authenticated               false
 pod-security-policy-all-20200702180710   psp-util.pod-security-policy-all-20200702180710   psp-util.pod-security-policy-all-20200702180710   true
@@ -54,7 +71,7 @@ restricted                               psp-util.restricted                    
 `tree` shows the relations between PSP and Subjects by tree expressions.
 
 ```shell
-$ psp-util tree
+$ kubectl psp-util tree
 📙 PSP eks.privileged
 └── 📕 ClusterRole eks:podsecuritypolicy:privileged
     └── 📘 ClusterRoleBinding eks:podsecuritypolicy:authenticated
@@ -100,7 +117,7 @@ it will generate them automaticaly.
 Attach MyPSP to Subject{APIGroup: rbac.authorization.k8s.io, Kind: Group, Name: system:authenticated}.
 
 ```shell
-$ psp-util attach MyPSP --group system:authenticated
+$ kubectl psp-util attach MyPSP --group system:authenticated
 Managed ClusterRole is not found...Created
 Managed ClusterRoleBinding is not found...Created
 
@@ -109,13 +126,13 @@ Managed ClusterRoleBinding is not found...Created
 Attach MyPSP to Subject{Kind: ServiceAccount, Name: default, Namespace: kube-system}.
 
 ```shell
-$ psp-util attach MyPSP --sa default -n kube-system
+$ kubectl psp-util attach MyPSP --sa default -n kube-system
 ```
 
 Or, set all subject's info directly.
 
 ```shell
-$ psp-util attach MyPSP --api-group=rbac.authorization.k8s.io --kind=Group --name=system:authenticated
+$ kubectl psp-util attach MyPSP --api-group=rbac.authorization.k8s.io --kind=Group --name=system:authenticated
 ```
 
 
