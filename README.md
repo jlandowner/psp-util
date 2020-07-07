@@ -16,7 +16,7 @@ You can install it by [krew](https://krew.sigs.k8s.io).
 After [installing krew](https://krew.sigs.k8s.io/docs/user-guide/setup/install/), run the following command:
 
 ```shell
-kubectl krew install --manifest-url https://raw.githubusercontent.com/jlandowner/psp-util/master/psp-util.yaml
+kubectl krew install psp-util
 
 ```
 
