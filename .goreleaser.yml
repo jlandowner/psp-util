@@ -1,0 +1,24 @@
+before:
+  hooks:
+  - go mod download
+builds:
+- id: psp-util
+  main: ./
+  binary: psp-util
+  env:
+  - CGO_ENABLED=0
+  goos:
+  - linux
+  - darwin
+  - windows
+  goarch:
+  - amd64
+
+archives:
+- builds:
+  - psp-util
+  name_template: "{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+  wrap_in_directory: false
+  format: tar.gz
+  files:
+  - LICENSE

@@ -12,10 +12,3 @@ multi-build:
 update-version:
 	sed -i.bak -e "s/v[0-9].[0-9].[0-9][-alpha]*[-beta]*/${VERSION}/g" ./cmd/version.go
 	sed -i.bak -e "s/v[0-9].[0-9].[0-9][-alpha]*[-beta]*/${VERSION}/g" ./psp-util.yaml
-
-release: update-version multi-build
-	mkdir -p bin/release
-	rm -f bin/release/${NAME}_${VERSION}_darwin_amd64.tar.gz bin/release/${NAME}_${VERSION}_linux_amd64.tar.gz bin/release/${NAME}_${VERSION}_windows_amd64.tar.gz
-	tar -zcvf bin/release/${NAME}_${VERSION}_darwin_amd64.tar.gz LICENSE -C bin/darwin_amd64/ ${NAME}
-	tar -zcvf bin/release/${NAME}_${VERSION}_linux_amd64.tar.gz LICENSE -C bin/linux_amd64/ ${NAME}
-	tar -zcvf bin/release/${NAME}_${VERSION}_windows_amd64.tar.gz LICENSE -C bin/windows_amd64/ ${NAME}
