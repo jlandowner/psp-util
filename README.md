@@ -169,7 +169,7 @@ Usage:
 Create PSP by using [kube-psp-advisor](https://github.com/sysdiglabs/kube-psp-advisor).
 
 ```shell
-$ kubectl advise-psp inspect | kubectl -f -
+$ kubectl advise-psp inspect | kubectl apply -f -
 ```
 
 See the PSP has been created.
