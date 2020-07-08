@@ -21,7 +21,7 @@ spec:
         arch: amd64
         os: linux
     {{addURIAndSha "https://github.com/jlandowner/psp-util/releases/download/{{ .TagName }}/psp-util_{{ .TagName }}_linux_amd64.tar.gz" .TagName }}
-  - bin: psp-util
+  - bin: psp-util.exe
     selector:
       matchLabels:
         arch: amd64
