@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/disiqueira/gotree v1.0.0
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/googleapis/gnostic v0.4.2 // indirect
+	github.com/googleapis/gnostic v0.1.0 // indirect
 	github.com/imdario/mergo v0.3.9 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de
