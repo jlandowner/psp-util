@@ -18,5 +18,6 @@ krew-template:
 	  krew-release-bot template --tag v1.0.1 --template-file /tmp/template-file.yaml
 
 test-build:
+	docker rmi -f jlandowner/psp-util:${VERSION}
 	docker build . -f ./test/test.Dockerfile -t jlandowner/psp-util:${VERSION}
 	docker run --rm jlandowner/psp-util:${VERSION}
