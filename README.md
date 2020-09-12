@@ -1,7 +1,8 @@
 # Pod Security Policy Utility
 
 ![GoReportCard](https://goreportcard.com/badge/github.com/jlandowner/psp-util)
-![action](https://github.com/jlandowner/psp-util/workflows/release/badge.svg)
+![GithubDownloadTotals](https://img.shields.io/github/downloads/jlandowner/psp-util/total.svg)
+![GithubActionsStatus](https://github.com/jlandowner/psp-util/workflows/release/badge.svg)
 
 A Kubectl plugin to manage `Pod Security Policy(PSP)` and RBAC Resources.
 
