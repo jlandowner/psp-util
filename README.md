@@ -164,6 +164,8 @@ Flags:
 
 `clean` delete a managed ClusterRole and ClusterRoleBinding.
 
+>NOTE: It does not delete the given PSP resource and non-managed ClusterRole and ClusterRoleBinding.
+
 ```shell
 Usage:
   psp-util clean PSP-NAME
