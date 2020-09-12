@@ -1,4 +1,8 @@
 # Pod Security Policy Utility
+
+![GoReportCard](https://goreportcard.com/badge/github.com/jlandowner/psp-util)
+![action](https://github.com/jlandowner/psp-util/workflows/release/badge.svg)
+
 A Kubectl plugin to manage `Pod Security Policy(PSP)` and RBAC Resources.
 
 Attach/Detach PSP to/from RBACs(Group, User) or ServiceAccounts and view the relations which PSP is effected to the Subjects in cluster.
