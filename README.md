@@ -1,6 +1,6 @@
 # Pod Security Policy Utility
 
-![GoReportCard](https://goreportcard.com/badge/github.com/jlandowner/psp-util)
+[![GoReportCard](https://goreportcard.com/badge/github.com/jlandowner/psp-util)](https://goreportcard.com/report/github.com/jlandowner/psp-util)
 ![GithubDownloadTotals](https://img.shields.io/github/downloads/jlandowner/psp-util/total.svg)
 ![GithubActionsStatus](https://github.com/jlandowner/psp-util/workflows/release/badge.svg)
 
