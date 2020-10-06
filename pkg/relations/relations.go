@@ -89,7 +89,7 @@ func generateRelationalPSP(apiPsp *policyv1.PodSecurityPolicy, apiCrList *rbacv1
 	rpsp := &RelationalPodSecurityPolicy{PodSecurityPolicy: *apiPsp}
 
 	for _, apicr := range apiCrList.Items {
-		pspNames := rbac.ExtractPSPNamesFromClusterRole(apicr)
+		pspNames := rbac.ExtractPSPFromGenericRole(apicr)
 		for _, pspName := range pspNames {
 			if rpsp.Name == pspName {
 				rpsp.ClusterRoles = append(rpsp.ClusterRoles, RelationalClusterRole{ClusterRole: apicr})
