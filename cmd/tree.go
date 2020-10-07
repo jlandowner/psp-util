@@ -58,7 +58,28 @@ var treeCmd = &cobra.Command{
 					}
 					crTree.AddTree(crbTree)
 				}
+				for _, rb := range cr.RoleBindings {
+					rbname := fmt.Sprintf("%v/%v", rb.Namespace, rb.Name)
+					rbTree := gotree.New(fmt.Sprintf("📓 RoleBinding "+printers.GreenString, rbname))
+					for _, sub := range rb.Subjects {
+						rbTree.Add(fmt.Sprintf("📗 Subject{Kind: "+printers.CianString+", Name: "+printers.RedString+", Namespace: "+printers.BlueString+"}", sub.Kind, sub.Name, sub.Namespace))
+					}
+					crTree.AddTree(rbTree)
+				}
 				pspTree.AddTree(crTree)
+			}
+			for _, r := range psp.Roles {
+				rname := fmt.Sprintf("%v/%v", r.Namespace, r.Name)
+				rTree := gotree.New(fmt.Sprintf("📓 Role "+printers.GreenString, rname))
+				for _, rb := range r.RoleBindings {
+					rbname := fmt.Sprintf("%v/%v", r.Namespace, rb.Name)
+					rbTree := gotree.New(fmt.Sprintf("📓 RoleBinding "+printers.GreenString, rbname))
+					for _, sub := range rb.Subjects {
+						rbTree.Add(fmt.Sprintf("📗 Subject{Kind: "+printers.CianString+", Name: "+printers.RedString+", Namespace: "+printers.BlueString+"}", sub.Kind, sub.Name, sub.Namespace))
+					}
+					rTree.AddTree(rbTree)
+				}
+				pspTree.AddTree(rTree)
 			}
 			fmt.Fprintln(w, pspTree.Print())
 		}
