@@ -58,7 +58,7 @@ func CreatePSPRole(ctx context.Context, k8sclient *kubernetes.Clientset, psp *po
 	return CreateClusterRole(ctx, k8sclient, clusterRole)
 }
 
-func ListUsePSPRole(ctx context.Context, k8sclient *kubernetes.Clientset) (*rbacv1.ClusterRoleList, error) {
+func ListClusterRolesWithPSP(ctx context.Context, k8sclient *kubernetes.Clientset) (*rbacv1.ClusterRoleList, error) {
 	clusterRoleList, err := k8sclient.RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
