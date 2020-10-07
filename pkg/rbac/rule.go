@@ -42,7 +42,7 @@ func ExtractPSPFromGenericRole(r interface{}) []string {
 
 func hasAPIGroupsPolicy(rule rbacv1.PolicyRule) bool {
 	for _, apiGroups := range rule.APIGroups {
-		if apiGroups == "policy" {
+		if apiGroups == "policy" || apiGroups == "extensions" {
 			return true
 		}
 	}
