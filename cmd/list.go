@@ -49,20 +49,37 @@ var listCmd = &cobra.Command{
 		w := printers.GetNewTabWriter(os.Stdout)
 		defer w.Flush()
 
-		printers.PrintLine(w, []string{"PSP-NAME", "CLUSTER-ROLE", "CLUSTER-ROLE-BINDING", "PSP-UTIL-MANAGED"})
+		printers.PrintLine(w, []string{"PSP-NAME", "CLUSTER-ROLE", "CLUSTER-ROLE-BINDING", "NS/ROLE", "NS/ROLE-BINDING", "PSP-UTIL-MANAGED"})
 
 		for _, psp := range psps {
-			if len(psp.ClusterRoles) == 0 {
-				printers.PrintLine(w, []string{psp.Name, "", "", ""})
+			if len(psp.ClusterRoles) == 0 && len(psp.Roles) == 0 {
+				printers.PrintLine(w, []string{psp.Name, "", "", "", "", ""})
 				continue
 			}
+			// clusterrole can bind to either clusterrolebinding or rolebinding
 			for _, cr := range psp.ClusterRoles {
-				if len(cr.ClusterRoleBindings) == 0 {
-					printers.PrintLine(w, []string{psp.Name, cr.Name, "", strconv.FormatBool(cr.IsManaged())})
+				if len(cr.ClusterRoleBindings) == 0 && len(cr.RoleBindings) == 0 {
+					printers.PrintLine(w, []string{psp.Name, cr.Name, "", "", "", strconv.FormatBool(cr.IsManaged())})
 					continue
 				}
 				for _, crb := range cr.ClusterRoleBindings {
-					printers.PrintLine(w, []string{psp.Name, cr.Name, crb.Name, strconv.FormatBool(cr.IsManaged())})
+					printers.PrintLine(w, []string{psp.Name, cr.Name, crb.Name, "", "", strconv.FormatBool(cr.IsManaged())})
+				}
+				for _, rb := range cr.RoleBindings {
+					rbname := fmt.Sprintf("%v/%v", rb.Namespace, rb.Name)
+					printers.PrintLine(w, []string{psp.Name, cr.Name, "", "", rbname, strconv.FormatBool(false)})
+				}
+			}
+			// role can only bind to rolebinding
+			for _, r := range psp.Roles {
+				rname := fmt.Sprintf("%v/%v", r.Namespace, r.Name)
+				if len(r.RoleBindings) == 0 {
+					printers.PrintLine(w, []string{psp.Name, "", "", rname, "", strconv.FormatBool(false)})
+					continue
+				}
+				for _, rb := range r.RoleBindings {
+					rbname := fmt.Sprintf("%v/%v", r.Namespace, rb.Name)
+					printers.PrintLine(w, []string{psp.Name, "", "", rname, rbname, strconv.FormatBool(false)})
 				}
 			}
 		}
