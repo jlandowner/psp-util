@@ -66,25 +66,6 @@ func GetRelationalPSPs(ctx context.Context, k8sclient *kubernetes.Clientset) ([]
 	return rpsps, nil
 }
 
-func GetRelationalPSP(ctx context.Context, k8sclient *kubernetes.Clientset, name string) (*RelationalPodSecurityPolicy, error) {
-	apiPsp, err := policy.GetPSP(ctx, k8sclient, name)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to get PSP: %v", err.Error())
-	}
-
-	apiCrList, err := rbac.ListUsePSPRole(ctx, k8sclient)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to list ClusterRole: %v", err.Error())
-	}
-
-	apiCrbList, err := rbac.ListClusterRoleBindings(ctx, k8sclient)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to list ClusterRole: %v", err.Error())
-	}
-
-	return generateRelationalPSP(apiPsp, apiCrList, apiCrbList), nil
-}
-
 func generateRelationalPSP(apiPsp *policyv1.PodSecurityPolicy, apiCrList *rbacv1.ClusterRoleList, apiCrbList *rbacv1.ClusterRoleBindingList) *RelationalPodSecurityPolicy {
 	rpsp := &RelationalPodSecurityPolicy{PodSecurityPolicy: *apiPsp}
 
