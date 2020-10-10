@@ -15,6 +15,7 @@ See the details of PSP:
 See the Best Practices of PSP: 
 - https://aws.github.io/aws-eks-best-practices/pods/#recommendations
 - https://github.com/sysdiglabs/kube-psp-advisor
+- https://blog.jlandowner.com/posts/pod-security-policy-best-practice/
 
 # Installation
 
@@ -65,12 +66,13 @@ A column `PSP-UTIL-MANAGED` is whether these ClusterRoles and ClusterRoleBinding
 
 ```shell
 $ kubectl psp-util list
-PSP-NAME                                 CLUSTER-ROLE                                      CLUSTER-ROLE-BINDING                              PSP-UTIL-MANAGED
-eks.privileged                           eks:podsecuritypolicy:privileged                  eks:podsecuritypolicy:authenticated               false
-pod-security-policy-all-20200702180710   psp-util.pod-security-policy-all-20200702180710   psp-util.pod-security-policy-all-20200702180710   true
-restricted                               psp-util.restricted                               psp-util.restricted                               true
-
+PSP-NAME                                 CLUSTER-ROLE                                      CLUSTER-ROLE-BINDING                              NS/ROLE         NS/ROLE-BINDING  PSP-UTIL-MANAGED
+eks.privileged                           eks:podsecuritypolicy:privileged                  eks:podsecuritypolicy:authenticated                                                false
+pod-security-policy-all-20200702180710   psp-util.pod-security-policy-all-20200702180710   psp-util.pod-security-policy-all-20200702180710                                    true
+restricted                               psp-util.restricted                               psp-util.restricted                                                                true
+myapp                                                                                                                                        default/myapp   default/myapp    false
 ```
+
 
 ## tree
 
@@ -95,6 +97,10 @@ $ kubectl psp-util tree
         └── 📗 Subject{Kind: Group, Name: my:group, Namespace: }
         └── 📗 Subject{Kind: ServiceAccount, Name: default, Namespace: default}
 
+📙 PSP myapp
+└── 📓 Role default/myapp
+    └── 📓 RoleBinding default/myapp
+        └── 📗 Subject{Kind: ServiceAccount, Name: myapp, Namespace: default}
 ```
 
 ## attach
