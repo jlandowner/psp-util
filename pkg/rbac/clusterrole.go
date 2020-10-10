@@ -58,7 +58,7 @@ func CreatePSPRole(ctx context.Context, k8sclient *kubernetes.Clientset, psp *po
 	return CreateClusterRole(ctx, k8sclient, clusterRole)
 }
 
-func ListUsePSPRole(ctx context.Context, k8sclient *kubernetes.Clientset) (*rbacv1.ClusterRoleList, error) {
+func ListClusterRolesWithPSP(ctx context.Context, k8sclient *kubernetes.Clientset) (*rbacv1.ClusterRoleList, error) {
 	clusterRoleList, err := k8sclient.RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
@@ -68,49 +68,10 @@ func ListUsePSPRole(ctx context.Context, k8sclient *kubernetes.Clientset) (*rbac
 	pspClusterRoleList.Items = make([]rbacv1.ClusterRole, 0)
 
 	for _, cr := range clusterRoleList.Items {
-		pspNames := ExtractPSPNamesFromClusterRole(cr)
+		pspNames := ExtractPSPFromGenericRole(cr)
 		if len(pspNames) != 0 {
 			pspClusterRoleList.Items = append(pspClusterRoleList.Items, cr)
 		}
 	}
 	return pspClusterRoleList, nil
-}
-
-func ExtractPSPNamesFromClusterRole(cr rbacv1.ClusterRole) []string {
-	pspNames := make([]string, 0)
-	for _, rule := range cr.Rules {
-		if hasApiGroupsPolicy(rule) && hasResourcePSP(rule) && hasVerbUse(rule) {
-			for _, resourceName := range rule.ResourceNames {
-				pspNames = append(pspNames, resourceName)
-			}
-		}
-	}
-	return pspNames
-}
-
-func hasApiGroupsPolicy(rule rbacv1.PolicyRule) bool {
-	for _, apiGroups := range rule.APIGroups {
-		if apiGroups == "policy" {
-			return true
-		}
-	}
-	return false
-}
-
-func hasResourcePSP(rule rbacv1.PolicyRule) bool {
-	for _, resource := range rule.Resources {
-		if resource == "podsecuritypolicies" {
-			return true
-		}
-	}
-	return false
-}
-
-func hasVerbUse(rule rbacv1.PolicyRule) bool {
-	for _, verb := range rule.Verbs {
-		if verb == "use" {
-			return true
-		}
-	}
-	return false
 }

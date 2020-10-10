@@ -28,13 +28,20 @@ import (
 )
 
 type RelationalPodSecurityPolicy struct {
-	ClusterRoles []RelationalClusterRole
+	ClusterRoles []*RelationalClusterRole
+	Roles        []*RelationalRole
 	policyv1.PodSecurityPolicy
 }
 
 type RelationalClusterRole struct {
-	ClusterRoleBindings []rbacv1.ClusterRoleBinding
+	ClusterRoleBindings []*rbacv1.ClusterRoleBinding
+	RoleBindings        []*rbacv1.RoleBinding
 	rbacv1.ClusterRole
+}
+
+type RelationalRole struct {
+	RoleBindings []*rbacv1.RoleBinding
+	rbacv1.Role
 }
 
 func (r RelationalClusterRole) IsManaged() bool {
@@ -43,66 +50,109 @@ func (r RelationalClusterRole) IsManaged() bool {
 }
 
 func GetRelationalPSPs(ctx context.Context, k8sclient *kubernetes.Clientset) ([]RelationalPodSecurityPolicy, error) {
-	apiPspList, err := policy.ListPSP(ctx, k8sclient)
+	psps, err := policy.ListPSP(ctx, k8sclient)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to list PSP: %v", err.Error())
 	}
-	rpsps := make([]RelationalPodSecurityPolicy, len(apiPspList.Items))
 
-	apiCrList, err := rbac.ListUsePSPRole(ctx, k8sclient)
+	crs, err := rbac.ListClusterRolesWithPSP(ctx, k8sclient)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to list ClusterRole: %v", err.Error())
 	}
 
-	apiCrbList, err := rbac.ListClusterRoleBindings(ctx, k8sclient)
+	rs, err := rbac.ListRolesWithPSP(ctx, k8sclient)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to list ClusterRole: %v", err.Error())
+		return nil, fmt.Errorf("Failed to list Role: %v", err.Error())
 	}
 
-	for i, p := range apiPspList.Items {
-		rpsps[i] = *generateRelationalPSP(&p, apiCrList, apiCrbList)
+	crbs, err := rbac.ListClusterRoleBindings(ctx, k8sclient)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to list ClusterRoleBindings: %v", err.Error())
 	}
+
+	rbs, err := rbac.ListRoleBindings(ctx, k8sclient)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to list RoleBindings: %v", err.Error())
+	}
+
+	rpsps := generateRelationalPSP(psps, crs, crbs, rs, rbs)
 
 	return rpsps, nil
 }
 
-func GetRelationalPSP(ctx context.Context, k8sclient *kubernetes.Clientset, name string) (*RelationalPodSecurityPolicy, error) {
-	apiPsp, err := policy.GetPSP(ctx, k8sclient, name)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to get PSP: %v", err.Error())
+func generateRelationalPSP(psps *policyv1.PodSecurityPolicyList,
+	crs *rbacv1.ClusterRoleList, crbs *rbacv1.ClusterRoleBindingList,
+	rs *rbacv1.RoleList, rbs *rbacv1.RoleBindingList,
+) []RelationalPodSecurityPolicy {
+	rpsps := make([]RelationalPodSecurityPolicy, len(psps.Items))
+
+	rpspByName := make(map[string]*RelationalPodSecurityPolicy)
+	for i, psp := range psps.Items {
+		rpsp := RelationalPodSecurityPolicy{PodSecurityPolicy: psp}
+		rpsps[i] = rpsp
+		rpspByName[rpsp.Name] = &rpsps[i]
 	}
 
-	apiCrList, err := rbac.ListUsePSPRole(ctx, k8sclient)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to list ClusterRole: %v", err.Error())
-	}
-
-	apiCrbList, err := rbac.ListClusterRoleBindings(ctx, k8sclient)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to list ClusterRole: %v", err.Error())
-	}
-
-	return generateRelationalPSP(apiPsp, apiCrList, apiCrbList), nil
-}
-
-func generateRelationalPSP(apiPsp *policyv1.PodSecurityPolicy, apiCrList *rbacv1.ClusterRoleList, apiCrbList *rbacv1.ClusterRoleBindingList) *RelationalPodSecurityPolicy {
-	rpsp := &RelationalPodSecurityPolicy{PodSecurityPolicy: *apiPsp}
-
-	for _, apicr := range apiCrList.Items {
-		pspNames := rbac.ExtractPSPNamesFromClusterRole(apicr)
+	// build PSP to RelationalClusterRole references
+	crByName := make(map[string]*RelationalClusterRole)
+	for _, cr := range crs.Items {
+		pspNames := rbac.ExtractPSPFromGenericRole(cr)
 		for _, pspName := range pspNames {
-			if rpsp.Name == pspName {
-				rpsp.ClusterRoles = append(rpsp.ClusterRoles, RelationalClusterRole{ClusterRole: apicr})
+			if rpsp, ok := rpspByName[pspName]; ok {
+				rcr := &RelationalClusterRole{ClusterRole: cr}
+				rpsp.ClusterRoles = append(rpsp.ClusterRoles, rcr)
+				crByName[cr.Name] = rcr
 			}
 		}
 	}
 
-	for j, cr := range rpsp.ClusterRoles {
-		for _, apicrb := range apiCrbList.Items {
-			if apicrb.RoleRef.APIGroup == "rbac.authorization.k8s.io" && apicrb.RoleRef.Kind == "ClusterRole" && apicrb.RoleRef.Name == cr.Name {
-				rpsp.ClusterRoles[j].ClusterRoleBindings = append(rpsp.ClusterRoles[j].ClusterRoleBindings, apicrb)
+	// build PSP to RelationalRole references
+	rByName := make(map[string]*RelationalRole)
+	for _, r := range rs.Items {
+		pspNames := rbac.ExtractPSPFromGenericRole(r)
+		for _, pspName := range pspNames {
+			if rpsp, ok := rpspByName[pspName]; ok {
+				rr := &RelationalRole{Role: r}
+				rpsp.Roles = append(rpsp.Roles, rr)
+				rByName[r.Name] = rr
 			}
 		}
 	}
-	return rpsp
+
+	// build RelationalClusterRole to ClusterRoleBindings references
+	for i, crb := range crbs.Items {
+		cr, ok := crByName[crb.RoleRef.Name]
+		if !ok {
+			continue
+		}
+		if crb.RoleRef.APIGroup != "rbac.authorization.k8s.io" || crb.RoleRef.Kind != "ClusterRole" {
+			continue
+		}
+
+		cr.ClusterRoleBindings = append(cr.ClusterRoleBindings, &crbs.Items[i])
+	}
+
+	// build RelationalRole and RelationalClusterRole to RoleBindings references
+	for i, rb := range rbs.Items {
+		if rb.RoleRef.APIGroup != "rbac.authorization.k8s.io" {
+			continue
+		}
+
+		switch rb.RoleRef.Kind {
+		case "ClusterRole":
+			cr, ok := crByName[rb.RoleRef.Name]
+			if !ok {
+				continue
+			}
+			cr.RoleBindings = append(cr.RoleBindings, &rbs.Items[i])
+		case "Role":
+			r, ok := rByName[rb.RoleRef.Name]
+			if !ok {
+				continue
+			}
+			r.RoleBindings = append(r.RoleBindings, &rbs.Items[i])
+		}
+	}
+
+	return rpsps
 }
