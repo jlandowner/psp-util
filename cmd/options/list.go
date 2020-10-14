@@ -20,7 +20,7 @@ import (
 )
 
 type ListOptions struct {
-	All         bool
+	NoHeader    bool
 	ClusterRole bool
 	Role        bool
 }
