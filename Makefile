@@ -1,5 +1,5 @@
 NAME = psp-util
-VERSION = v1.0.1
+VERSION = v1.1.0
 build:
 	go build -o bin/${NAME} main.go
 
@@ -11,7 +11,6 @@ multi-build:
 
 update-version:
 	sed -i.bak -e "s/v[0-9].[0-9].[0-9][-alpha]*[-beta]*/${VERSION}/g" ./cmd/version.go
-	sed -i.bak -e "s/v[0-9].[0-9].[0-9][-alpha]*[-beta]*/${VERSION}/g" ./psp-util.yaml
 
 krew-template:
 	docker run -v `pwd`/.krew.yaml:/tmp/template-file.yaml rajatjindal/krew-release-bot:v0.0.38 \
