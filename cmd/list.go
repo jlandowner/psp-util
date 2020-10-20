@@ -30,7 +30,7 @@ import (
 
 func init() {
 	rootCmd.AddCommand(listCmd)
-	listCmd.Flags().BoolVar(&l.NoHeader, "no-header", false, "output without header")
+	listCmd.Flags().BoolVar(&l.NoHeader, "no-headers", false, "output without header")
 	listCmd.Flags().BoolVarP(&l.ClusterRole, "cluster-role", "c", false, "output only clusterroles associated with PSP")
 	listCmd.Flags().BoolVarP(&l.Role, "role", "r", false, "output only roles associated with PSP")
 }
