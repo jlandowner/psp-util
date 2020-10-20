@@ -195,10 +195,10 @@ eks.privileged                           eks:podsecuritypolicy:privileged   eks:
 pod-security-policy-all-20200702180710  
 ```
 
-Attach the PSP to Group named `system:authenticated`
+Attach the PSP to Group named `system:serviceaccounts:default`
 
 ```shell
-$ kubectl psp-util attach pod-security-policy-all-20200702180710 --group system:authenticated
+$ kubectl psp-util attach pod-security-policy-all-20200702180710 --group system:serviceaccounts:default
 Managed ClusterRole is not found...Created
 Managed ClusterRoleBinding is not found...Created
 ```
@@ -220,7 +220,7 @@ $ kubectl psp-util tree
 📙 PSP pod-security-policy-all-20200702180710
 └── 📕 ClusterRole psp-util.pod-security-policy-all-20200702180710
     └── 📘 ClusterRoleBinding psp-util.pod-security-policy-all-20200702180710
-        └── 📗 Subject{Kind: Group, Name: system:authenticated, Namespace: }
+        └── 📗 Subject{Kind: Group, Name: system:serviceaccounts:default, Namespace: }
 
 $ kubectl describe clusterrolebindings psp-util.pod-security-policy-all-20200702180710
 Name:         psp-util.pod-security-policy-all-20200702180710
@@ -230,9 +230,9 @@ Role:
   Kind:  ClusterRole
   Name:  psp-util.pod-security-policy-all-20200702180710
 Subjects:
-  Kind   Name                  Namespace
-  ----   ----                  ---------
-  Group  system:authenticated  
+  Kind   Name                            Namespace
+  ----   ----                            ---------
+  Group  system:serviceaccounts:default  
 ```
 
 # LICENSE
