@@ -62,11 +62,11 @@ Use "psp-util [command] --help" for more information about a command.
 
 `list` shows all PSPs in cluster, and also ClusterRoles and ClusterRoleBindings associated with each of them.
 
-A column `PSP-UTIL-MANAGED` is whether these ClusterRoles and ClusterRoleBindings are auto-created and managed by `psp-util`.
+A column `Managed` is whether these ClusterRoles and ClusterRoleBindings are auto-created and managed by `psp-util`.
 
 ```shell
 $ kubectl psp-util list
-PSP-NAME                                 CLUSTER-ROLE                                      CLUSTER-ROLE-BINDING                              NS/ROLE         NS/ROLE-BINDING  PSP-UTIL-MANAGED
+PSP                                      ClusterRole                                       ClusterRoleBinding                                NS/Role         NS/RoleBinding   Managed
 eks.privileged                           eks:podsecuritypolicy:privileged                  eks:podsecuritypolicy:authenticated                                                false
 pod-security-policy-all-20200702180710   psp-util.pod-security-policy-all-20200702180710   psp-util.pod-security-policy-all-20200702180710                                    true
 restricted                               psp-util.restricted                               psp-util.restricted                                                                true
@@ -109,7 +109,7 @@ $ kubectl psp-util tree
 
 ```shell
 Usage:
-  psp-util attach PSP-NAME [ --group | --user | --sa ] SUBJECT-NAME [flags]
+  psp-util attach PSP      [ --group | --user | --sa ] SUBJECT-NAME [flags]
 
 Flags:
   -g, --group string       set Subject's Name and use Kind Group
@@ -190,7 +190,7 @@ See the PSP has been created.
 
 ```shell
 $ kubectl psp-util list
-PSP-NAME                                 CLUSTER-ROLE                       CLUSTER-ROLE-BINDING                  PSP-UTIL-MANAGED
+PSP                                      ClusterRole                        ClusterRoleBinding                    Managed
 eks.privileged                           eks:podsecuritypolicy:privileged   eks:podsecuritypolicy:authenticated   false
 pod-security-policy-all-20200702180710  
 ```
@@ -207,7 +207,7 @@ Then you can see a ClusterRole and ClusterRoleBinding are created and the PSP is
 
 ```shell
 $ kubectl psp-util list
-PSP-NAME                                 CLUSTER-ROLE                                      CLUSTER-ROLE-BINDING                              PSP-UTIL-MANAGED
+PSP                                      ClusterRole                                       ClusterRoleBinding                                Managed
 eks.privileged                           eks:podsecuritypolicy:privileged                  eks:podsecuritypolicy:authenticated               false
 pod-security-policy-all-20200702180710   psp-util.pod-security-policy-all-20200702180710   pdp-util.pod-security-policy-all-20200702180710   true
 
