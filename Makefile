@@ -1,5 +1,5 @@
 NAME = psp-util
-VERSION = v1.1.0
+VERSION = v1.1.1
 build:
 	go build -o bin/${NAME} main.go
 
