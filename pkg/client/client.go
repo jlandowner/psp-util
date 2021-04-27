@@ -26,15 +26,19 @@ import (
 )
 
 // NewClient returns kubernetes Clientset
-func NewClient(kubeconfigPath *string) (*kubernetes.Clientset, error) {
+func NewClient(kubeconfigPath *string, kubecontext *string) (*kubernetes.Clientset, error) {
 	if *kubeconfigPath == "" {
 		*kubeconfigPath = filepath.Join(homeDir(), ".kube", "config")
 	}
 
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfigPath)
+	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: *kubeconfigPath},
+		&clientcmd.ConfigOverrides{CurrentContext: *kubecontext}).ClientConfig()
+
 	if err != nil {
 		return nil, err
 	}
+
 	return kubernetes.NewForConfig(config)
 }
 
