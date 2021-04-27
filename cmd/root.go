@@ -24,6 +24,7 @@ import (
 
 var (
 	kubeconfigPath string
+	kubecontext    string
 
 	rootCmd = &cobra.Command{
 		Use:   "psp-util",
@@ -41,7 +42,8 @@ Apache License Version 2.0 Copyright 2020 jlandowner
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&kubeconfigPath, "kubeconfig", "", "kube config file (default is $HOME/.kube/config)")
+	rootCmd.PersistentFlags().StringVar(&kubeconfigPath, "kubeconfig", "", "kubeconfig file path (default: $HOME/.kube/config)")
+	rootCmd.PersistentFlags().StringVar(&kubecontext, "context", "", "kube-context (default: current context)")
 }
 
 func Execute() {

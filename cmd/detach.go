@@ -51,7 +51,7 @@ var (
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
-			k8sclient, err := client.NewClient(&kubeconfigPath)
+			k8sclient, err := client.NewClient(&kubeconfigPath, &kubecontext)
 			if err != nil {
 				return fmt.Errorf("Failed to load kubeconfig %v: %v", kubeconfigPath, err.Error())
 			}
