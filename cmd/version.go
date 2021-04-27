@@ -29,6 +29,6 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Kubernetes Pod Security Policy Utilities v1.1.1 jlandowner 2020")
+		fmt.Println("Kubernetes Pod Security Policy Utilities v1.2.0 jlandowner 2020")
 	},
 }
